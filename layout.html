@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distribución de fotos — Herramientas</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #f2efe9;
+  --surface:  #ffffff;
+  --surf2:    #f7f5f1;
+  --border:   #e4e0d8;
+  --border2:  #ccc8c0;
+  --text:     #1a1a1a;
+  --text2:    #666;
+  --text3:    #999;
+  --accent:   #2c6fef;
+  --r:        10px;
+  --rsm:      7px;
+  --hh:       52px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+/* ── HEADER ── */
+.app-header {
+  height: var(--hh);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.back-link {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text2); text-decoration: none;
+  padding: 6px 10px; border-radius: var(--rsm);
+  transition: background .12s, color .12s;
+}
+.back-link:hover { background: var(--surf2); color: var(--text); }
+.header-title { font-size: 13.5px; font-weight: 600; letter-spacing: -.2px; }
+.header-right { width: 120px; display: flex; justify-content: flex-end; }
+
+/* ── LAYOUT ── */
+.app { display: flex; flex: 1; min-height: 0; }
+
+/* ── PANEL ── */
+.panel {
+  width: 274px; flex-shrink: 0;
+  overflow-y: auto; padding: 8px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 6px;
+  background: var(--bg);
+}
+.panel::-webkit-scrollbar { width: 4px; }
+.panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 11px 12px;
+}
+.stitle {
+  font-size: 9.5px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .1em;
+  margin-bottom: 9px;
+}
+
+/* ── CONTROLS ── */
+.ctrl { display: flex; flex-direction: column; gap: 3px; margin-bottom: 7px; }
+.ctrl:last-child { margin-bottom: 0; }
+.ctrl > label {
+  font-size: 10.5px; color: var(--text2);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ctrl > label b { color: var(--text); font-variant-numeric: tabular-nums; font-size: 10px; }
+input[type=range] { width: 100%; accent-color: var(--text); height: 3px; }
+input[type=text], select, textarea {
+  width: 100%; padding: 6px 9px; font-size: 12px;
+  border: 1px solid var(--border); border-radius: var(--rsm);
+  background: var(--surface); color: var(--text);
+  outline: none; font-family: inherit;
+  transition: border-color .12s;
+}
+input[type=text]:focus, select:focus, textarea:focus { border-color: var(--border2); }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+/* ── PILLS ── */
+.mrow { display: flex; gap: 4px; flex-wrap: wrap; }
+.mb {
+  font-size: 10px; padding: 3px 8px;
+  border: 1px solid var(--border); border-radius: 20px;
+  cursor: pointer; background: var(--surf2); color: var(--text2);
+  transition: all .12s; white-space: nowrap; user-select: none;
+}
+.mb:hover { border-color: var(--border2); color: var(--text); }
+.mb.on { background: var(--text); color: #fff; border-color: var(--text); }
+
+/* ── BUTTONS ── */
+.bp {
+  background: var(--text); color: #fff; border: none;
+  border-radius: var(--rsm); padding: 8px 12px; font-size: 12px;
+  font-weight: 500; cursor: pointer; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-family: inherit; transition: opacity .12s;
+}
+.bp:hover { opacity: .8; }
+.bs {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: var(--rsm); padding: 7px 12px; font-size: 12px;
+  cursor: pointer; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-family: inherit; transition: background .12s;
+}
+.bs:hover { background: var(--surf2); }
+.bs.on { background: var(--text); color: #fff; border-color: var(--text); }
+
+/* ── UPLOAD ── */
+.upload-area {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--rsm); padding: 14px 10px;
+  text-align: center; cursor: pointer;
+  color: var(--text3); font-size: 12px;
+  background: var(--surf2); transition: border-color .15s;
+  margin-bottom: 8px;
+}
+.upload-area:hover, .upload-area.over { border-color: var(--text3); color: var(--text2); }
+#fi { display: none; }
+
+.thumb-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  max-height: 130px; overflow-y: auto;
+}
+.thumb-item {
+  position: relative; aspect-ratio: 1;
+  border-radius: 5px; overflow: hidden; background: var(--surf2);
+}
+.thumb-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb-del {
+  position: absolute; top: 2px; right: 2px;
+  width: 15px; height: 15px; background: rgba(0,0,0,.65);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #fff; cursor: pointer; line-height: 1;
+  opacity: 0; transition: opacity .15s;
+}
+.thumb-item:hover .thumb-del { opacity: 1; }
+.count-badge {
+  font-size: 10px; color: var(--text3); margin-top: 5px; text-align: center;
+}
+
+/* ── COLOR SWATCH ── */
+.color-row { display: flex; align-items: center; gap: 8px; }
+.swatch {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid var(--border);
+  position: relative; cursor: pointer; flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  overflow: hidden;
+}
+.swatch input[type=color] {
+  position: absolute; opacity: 0; width: 200%; height: 200%;
+  top: -50%; left: -50%; cursor: pointer;
+}
+.color-label { font-size: 11px; color: var(--text3); font-family: monospace; }
+.presets { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.preset {
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: border-color .12s;
+  flex-shrink: 0;
+}
+.preset:hover, .preset.on { border-color: var(--text); }
+
+/* ── STATUS ── */
+.status { font-size: 10.5px; color: var(--text3); text-align: center; margin-top: 7px; min-height: 15px; }
+.status.warn { color: #c97b00; }
+.status.ok { color: #2a8a47; }
+
+/* ── CANVAS AREA ── */
+.canvas-area {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 20px; overflow: auto; background: var(--bg);
+  position: relative;
+}
+#cv {
+  display: block; box-shadow: 0 6px 40px rgba(0,0,0,.14);
+  border-radius: 2px; cursor: default;
+  max-width: 100%; max-height: calc(100vh - var(--hh) - 40px);
+}
+#cv.text-mode { cursor: crosshair; }
+#cv.drag-text  { cursor: grabbing; }
+
+/* scrollbar panel */
+.panel::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a href="index.html" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Herramientas
+  </a>
+  <span class="header-title">Distribución de fotos</span>
+  <div class="header-right"></div>
+</header>
+
+<div class="app">
+
+  <!-- ══ PANEL ══════════════════════════════════════════════ -->
+  <div class="panel">
+
+    <!-- Upload -->
+    <div class="card">
+      <div class="stitle">Imágenes</div>
+      <div class="upload-area" id="dz">＋ Añadir imágenes</div>
+      <div class="thumb-grid" id="thumbGrid"></div>
+      <div class="count-badge" id="countBadge"></div>
+      <input type="file" id="fi" accept="image/*" multiple>
+    </div>
+
+    <!-- Distribución -->
+    <div class="card">
+      <div class="stitle">Distribución</div>
+      <div class="ctrl">
+        <label>Separación entre fotos <b id="vgap">20px</b></label>
+        <input type="range" id="gap" min="0" max="150" value="20">
+      </div>
+      <div class="ctrl">
+        <label>Margen del lienzo <b id="vmargin">40px</b></label>
+        <input type="range" id="margin" min="0" max="200" value="40">
+      </div>
+      <div class="g2">
+        <div class="ctrl">
+          <label>Tamaño mín. <b id="vsizeMin">15%</b></label>
+          <input type="range" id="sizeMin" min="5" max="60" value="15">
+        </div>
+        <div class="ctrl">
+          <label>Tamaño máx. <b id="vsizeMax">42%</b></label>
+          <input type="range" id="sizeMax" min="10" max="80" value="42">
+        </div>
+      </div>
+    </div>
+
+    <!-- Forma del área -->
+    <div class="card">
+      <div class="stitle">Forma del área</div>
+      <div class="mrow" id="shapeRow">
+        <div class="mb on" data-sh="rect">Rectángulo</div>
+        <div class="mb"    data-sh="circle">Círculo</div>
+        <div class="mb"    data-sh="diamond">Rombo</div>
+        <div class="mb"    data-sh="ellipse">Elipse</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+        <input type="checkbox" id="showOutline" style="width:auto;flex-shrink:0">
+        <label for="showOutline" style="font-size:11px;color:var(--text2);cursor:pointer;flex:1">Mostrar contorno</label>
+        <div class="swatch" id="outlineSwatch" style="background:#9b59b6;width:22px;height:22px">
+          <input type="color" id="outlinePicker" value="#9b59b6">
+        </div>
+      </div>
+    </div>
+
+    <!-- Formato imagen -->
+    <div class="card">
+      <div class="stitle">Proporción de imagen</div>
+      <div class="mrow" id="fmtRow">
+        <div class="mb on" data-f="original">Original</div>
+        <div class="mb" data-f="1:1">1:1</div>
+        <div class="mb" data-f="2:3">2:3</div>
+        <div class="mb" data-f="3:2">3:2</div>
+        <div class="mb" data-f="4:3">4:3</div>
+        <div class="mb" data-f="3:4">3:4</div>
+        <div class="mb" data-f="16:9">16:9</div>
+        <div class="mb" data-f="9:16">9:16</div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="stitle" style="margin-bottom:6px">Modo color</div>
+        <div class="mrow">
+          <div class="mb on" id="cColor">Color</div>
+          <div class="mb"   id="cBW">Blanco y negro</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fondo -->
+    <div class="card">
+      <div class="stitle">Color de fondo</div>
+      <div class="color-row">
+        <div class="swatch" id="bgSwatch" style="background:#F5F0E8">
+          <input type="color" id="bgPicker" value="#F5F0E8">
+        </div>
+        <span class="color-label" id="bgLabel">#F5F0E8</span>
+      </div>
+      <div class="presets" id="bgPresets">
+        <div class="preset on"  data-c="#F5F0E8" style="background:#F5F0E8"               title="Crema"></div>
+        <div class="preset"     data-c="#FFFFFF" style="background:#FFFFFF;border:2px solid #e4e0d8" title="Blanco"></div>
+        <div class="preset"     data-c="#1a1a1a" style="background:#1a1a1a"               title="Negro"></div>
+        <div class="preset"     data-c="#E8E4DC" style="background:#E8E4DC"               title="Gris cálido"></div>
+        <div class="preset"     data-c="#E4E7EC" style="background:#E4E7EC"               title="Gris frío"></div>
+        <div class="preset"     data-c="#C9D5E5" style="background:#C9D5E5"               title="Azul"></div>
+        <div class="preset"     data-c="#D5E5CE" style="background:#D5E5CE"               title="Verde"></div>
+        <div class="preset"     data-c="#F0E0D0" style="background:#F0E0D0"               title="Beige"></div>
+      </div>
+    </div>
+
+    <!-- Texto -->
+    <div class="card">
+      <div class="stitle">Herramienta de texto</div>
+      <input type="text" id="textInput" placeholder="Escribe aquí…" style="margin-bottom:7px">
+      <div class="g2" style="margin-bottom:7px">
+        <div class="ctrl">
+          <label>Tamaño <b id="vfSize">36</b>px</label>
+          <input type="range" id="fSize" min="8" max="250" value="36">
+        </div>
+        <div class="ctrl">
+          <label>Color</label>
+          <div class="color-row" style="margin-top:4px">
+            <div class="swatch" id="txtSwatch" style="background:#1a1a1a;width:22px;height:22px">
+              <input type="color" id="txtPicker" value="#1a1a1a">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ctrl" style="margin-bottom:8px">
+        <label>Tipografía</label>
+        <select id="fFamily" style="margin-top:3px">
+          <option value="sans-serif">Sans-serif</option>
+          <option value="serif">Serif</option>
+          <option value="monospace">Monospace</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica Neue</option>
+          <option value="Impact, Haettenschweiler, sans-serif">Impact</option>
+          <option value="'Courier New', Courier, monospace">Courier</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="bp" id="btnTxtMode" style="flex:1">✎ Modo texto</button>
+        <button class="bs" id="btnClearTxt" style="flex:none;width:auto;padding:7px 10px" title="Eliminar todo el texto">✕</button>
+      </div>
+      <p style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4">
+        Activa modo texto, haz clic en el lienzo para colocar.<br>
+        Arrastra el texto para reposicionarlo. Doble clic para borrar.
+      </p>
+    </div>
+
+    <!-- Tamaño lienzo -->
+    <div class="card">
+      <div class="stitle">Tamaño del lienzo</div>
+      <div class="mrow" id="sizeRow">
+        <div class="mb on" data-s="a4v">A4 ↑</div>
+        <div class="mb"    data-s="a4h">A4 ↔</div>
+        <div class="mb"    data-s="a3v">A3 ↑</div>
+        <div class="mb"    data-s="sq">1:1</div>
+        <div class="mb"    data-s="f43">4:3</div>
+        <div class="mb"    data-s="f169">16:9</div>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="card">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="bp" id="btnPlace">⚄ Redistribuir aleatoriamente</button>
+        <button class="bs" id="btnDownload">↓ Exportar PNG</button>
+      </div>
+      <div class="status" id="status">Añade imágenes para comenzar</div>
+    </div>
+
+  </div><!-- /panel -->
+
+  <!-- ══ CANVAS ═════════════════════════════════════════════ -->
+  <div class="canvas-area">
+    <canvas id="cv"></canvas>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ────────────────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────────────────
+const cv  = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+
+let imgs   = [];          // {id, img, src}
+let placed = [];          // {id, img, x, y, w, h, sx, sy, sw, sh}
+let texts  = [];          // {id, x, y, text, fSize, fFamily, color}
+let uid    = 0;
+
+let bgColor      = '#F5F0E8';
+let globalFmt    = 'original';
+let globalBW     = false;
+let textMode     = false;
+let dragging     = null;   // {item, ox, oy}
+let placeTimer   = null;
+let curShape     = 'rect'; // rect | circle | diamond | ellipse
+let showOutline  = false;
+let outlineColor = '#9b59b6';
+
+// Canvas logical sizes (px) → export sizes
+const SIZES = {
+  a4v:  { w: 1190, h: 1684, ew: 2480, eh: 3508 },
+  a4h:  { w: 1684, h: 1190, ew: 3508, eh: 2480 },
+  a3v:  { w: 1190, h: 1684, ew: 3508, eh: 4961 },
+  sq:   { w: 1200, h: 1200, ew: 3000, eh: 3000 },
+  f43:  { w: 1200, h:  900, ew: 4000, eh: 3000 },
+  f169: { w: 1200, h:  675, ew: 3840, eh: 2160 },
+};
+let curSize = 'a4v';
+
+function initCanvas() {
+  const s = SIZES[curSize];
+  cv.width  = s.w;
+  cv.height = s.h;
+}
+initCanvas();
+
+// ────────────────────────────────────────────────────────────
+// SLIDERS
+// ────────────────────────────────────────────────────────────
+const sliders = [
+  { id: 'gap',     out: 'vgap',     fmt: v => v + 'px', rePlace: true  },
+  { id: 'margin',  out: 'vmargin',  fmt: v => v + 'px', rePlace: true  },
+  { id: 'sizeMin', out: 'vsizeMin', fmt: v => v + '%',  rePlace: true  },
+  { id: 'sizeMax', out: 'vsizeMax', fmt: v => v + '%',  rePlace: true  },
+  { id: 'fSize',   out: 'vfSize',   fmt: v => v,        rePlace: false },
+];
+sliders.forEach(({ id, out, fmt, rePlace }) => {
+  document.getElementById(id).addEventListener('input', function () {
+    document.getElementById(out).textContent = fmt(this.value);
+    if (rePlace && imgs.length) debouncePlace();
+  });
+});
+
+function gv(id) { return parseInt(document.getElementById(id).value); }
+
+// ────────────────────────────────────────────────────────────
+// FORMAT PILLS
+// ────────────────────────────────────────────────────────────
+document.querySelectorAll('#fmtRow .mb').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('#fmtRow .mb').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    globalFmt = b.dataset.f;
+    if (imgs.length) debouncePlace();
+  };
+});
+
+document.getElementById('cColor').onclick = () => {
+  globalBW = false;
+  document.getElementById('cColor').classList.add('on');
+  document.getElementById('cBW').classList.remove('on');
+  render();
+};
+document.getElementById('cBW').onclick = () => {
+  globalBW = true;
+  document.getElementById('cBW').classList.add('on');
+  document.getElementById('cColor').classList.remove('on');
+  render();
+};
+
+// SHAPE PILLS
+document.querySelectorAll('#shapeRow .mb').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('#shapeRow .mb').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    curShape = b.dataset.sh;
+    if (imgs.length) placeAll(); else render();
+  };
+});
+
+// OUTLINE TOGGLE + COLOR
+document.getElementById('showOutline').addEventListener('change', function () {
+  showOutline = this.checked;
+  render();
+});
+document.getElementById('outlinePicker').addEventListener('input', function () {
+  outlineColor = this.value;
+  document.getElementById('outlineSwatch').style.background = outlineColor;
+  if (showOutline) render();
+});
+
+// SIZE PILLS
+document.querySelectorAll('#sizeRow .mb').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('#sizeRow .mb').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    curSize = b.dataset.s;
+    initCanvas();
+    if (imgs.length) placeAll(); else render();
+  };
+});
+
+// ────────────────────────────────────────────────────────────
+// BACKGROUND COLOR
+// ────────────────────────────────────────────────────────────
+function setBgColor(c) {
+  bgColor = c;
+  document.getElementById('bgPicker').value = c;
+  document.getElementById('bgSwatch').style.background = c;
+  document.getElementById('bgLabel').textContent = c.toUpperCase();
+  render();
+}
+
+document.getElementById('bgPicker').addEventListener('input', function () {
+  document.querySelectorAll('#bgPresets .preset').forEach(p => p.classList.remove('on'));
+  setBgColor(this.value);
+});
+document.querySelectorAll('#bgPresets .preset').forEach(p => {
+  p.onclick = () => {
+    document.querySelectorAll('#bgPresets .preset').forEach(x => x.classList.remove('on'));
+    p.classList.add('on');
+    setBgColor(p.dataset.c);
+  };
+});
+
+// TEXT COLOR
+document.getElementById('txtPicker').addEventListener('input', function () {
+  document.getElementById('txtSwatch').style.background = this.value;
+});
+
+// ────────────────────────────────────────────────────────────
+// TEXT TOOL
+// ────────────────────────────────────────────────────────────
+document.getElementById('btnTxtMode').addEventListener('click', () => {
+  textMode = !textMode;
+  const btn = document.getElementById('btnTxtMode');
+  cv.classList.toggle('text-mode', textMode);
+  if (textMode) {
+    btn.textContent = '✎ Clic en lienzo para colocar';
+    btn.style.background = '#4a9fd4';
+  } else {
+    btn.textContent = '✎ Modo texto';
+    btn.style.background = '';
+  }
+});
+
+document.getElementById('btnClearTxt').onclick = () => { texts = []; render(); };
+
+// ────────────────────────────────────────────────────────────
+// UPLOAD
+// ────────────────────────────────────────────────────────────
+function loadFile(file) {
+  if (!file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const src = ev.target.result;
+    const img = new Image();
+    img.onload = () => {
+      imgs.push({ id: uid++, img, src });
+      buildThumbs();
+      placeAll();
+    };
+    img.src = src;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleFiles(files) {
+  Array.from(files).forEach(loadFile);
+}
+
+const dz = document.getElementById('dz');
+dz.onclick = () => document.getElementById('fi').click();
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('over'));
+dz.addEventListener('drop',      e  => { e.preventDefault(); dz.classList.remove('over'); handleFiles(e.dataTransfer.files); });
+document.getElementById('fi').addEventListener('change', function () {
+  handleFiles(this.files); this.value = '';
+});
+
+function buildThumbs() {
+  const g = document.getElementById('thumbGrid');
+  g.innerHTML = '';
+  imgs.forEach(({ id, src }) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'thumb-item';
+    const im = document.createElement('img');
+    im.src = src;
+    const del = document.createElement('div');
+    del.className = 'thumb-del';
+    del.textContent = '✕';
+    del.onclick = () => {
+      imgs = imgs.filter(x => x.id !== id);
+      buildThumbs();
+      if (imgs.length) placeAll(); else { placed = []; render(); }
+    };
+    wrap.append(im, del);
+    g.appendChild(wrap);
+  });
+  const cb = document.getElementById('countBadge');
+  cb.textContent = imgs.length ? `${imgs.length} imagen${imgs.length > 1 ? 'es' : ''}` : '';
+}
+
+// ────────────────────────────────────────────────────────────
+// PLACEMENT ALGORITHM
+// ────────────────────────────────────────────────────────────
+function debouncePlace() {
+  clearTimeout(placeTimer);
+  placeTimer = setTimeout(placeAll, 350);
+}
+
+function getAspect(img, fmt) {
+  if (fmt === 'original') return img.width / img.height;
+  const [fw, fh] = fmt.split(':').map(Number);
+  return fw / fh;
+}
+
+function getSrcRect(img, fmt) {
+  if (fmt === 'original') return { sx: 0, sy: 0, sw: img.width, sh: img.height };
+  const [fw, fh] = fmt.split(':').map(Number);
+  const tA = fw / fh;
+  const iA = img.width / img.height;
+  if (iA > tA) {
+    const sh = img.height, sw = sh * tA;
+    return { sx: (img.width - sw) / 2, sy: 0, sw, sh };
+  } else {
+    const sw = img.width, sh = sw / tA;
+    return { sx: 0, sy: (img.height - sh) / 2, sw, sh };
+  }
+}
+
+function placeAll() {
+  if (!imgs.length) { placed = []; render(); return; }
+
+  const gap    = gv('gap');
+  const margin = gv('margin');
+  const sMin   = Math.min(gv('sizeMin'), gv('sizeMax')) / 100;
+  const sMax   = Math.max(gv('sizeMin'), gv('sizeMax')) / 100 + 0.02;
+  const cw     = cv.width, ch = cv.height;
+
+  placed = [];
+  const rects = [];
+  let nOk = 0;
+
+  const shuffled = [...imgs].sort(() => Math.random() - 0.5);
+
+  for (const { id, img } of shuffled) {
+    const aspect = getAspect(img, globalFmt);
+    let success  = false;
+
+    for (let szTry = 0; szTry < 3 && !success; szTry++) {
+      const shrink = 1 - szTry * 0.2;
+      const h    = ch * (sMin + Math.random() * (sMax - sMin)) * shrink;
+      const w    = h * aspect;
+      const maxX = cw - margin - w;
+      const maxY = ch - margin - h;
+      if (maxX < margin || maxY < margin || w < 4 || h < 4) continue;
+
+      // Clamp to canvas margins and attempt placement
+      const tryAt = (rawX, rawY) => {
+        const x = Math.max(margin, Math.min(maxX, rawX));
+        const y = Math.max(margin, Math.min(maxY, rawY));
+        if (!isInShape(x, y, w, h, margin)) return false;   // shape boundary
+        const r = { x, y, w, h };
+        if (overlapsAny(r, rects, gap)) return false;
+        const { sx, sy, sw, sh } = getSrcRect(img, globalFmt);
+        placed.push({ id, img, x, y, w, h, sx, sy, sw, sh });
+        rects.push(r);
+        nOk++; success = true;
+        return true;
+      };
+
+      // ── Phase 0: First image goes to canvas center ─────────
+      if (rects.length === 0) {
+        tryAt(cw / 2 - w / 2, ch / 2 - h / 2);
+      }
+
+      // ── Phase 1: Contact-point candidates ──────────────────
+      // Each new image tries to sit EXACTLY `gap` from one edge of
+      // an already-placed image (right / left / below / above).
+      // Three alignment options per edge: flush-start, centered,
+      // flush-end. This ensures adjacent images always share the
+      // same gap on the touching sides.
+      if (!success) {
+        const cp = [];
+        for (const r of rects) {
+          const rx = r.x + r.w + gap;  // right side of r + gap
+          cp.push({ x: rx, y: r.y             });   // top-flush
+          cp.push({ x: rx, y: r.y+(r.h-h)/2   });   // centered
+          cp.push({ x: rx, y: r.y + r.h - h   });   // bottom-flush
+
+          const lx = r.x - w - gap;   // left side of r - gap - width
+          cp.push({ x: lx, y: r.y             });
+          cp.push({ x: lx, y: r.y+(r.h-h)/2   });
+          cp.push({ x: lx, y: r.y + r.h - h   });
+
+          const by = r.y + r.h + gap;  // bottom of r + gap
+          cp.push({ x: r.x,           y: by });   // left-flush
+          cp.push({ x: r.x+(r.w-w)/2, y: by });   // centered
+          cp.push({ x: r.x + r.w - w, y: by });   // right-flush
+
+          const ay = r.y - h - gap;    // top of r - gap - height
+          cp.push({ x: r.x,           y: ay });
+          cp.push({ x: r.x+(r.w-w)/2, y: ay });
+          cp.push({ x: r.x + r.w - w, y: ay });
+        }
+
+        // Shuffle so no single neighbor is always preferred
+        cp.sort(() => Math.random() - 0.5);
+        for (const { x, y } of cp) { if (tryAt(x, y)) break; }
+      }
+
+      // ── Phase 2: Stratified random fallback ────────────────
+      // Only reached for the very first image (no rects yet) or
+      // when the canvas is nearly full and no contact point fits.
+      if (!success) {
+        const G  = 9;
+        const fb = [];
+        for (let gi = 0; gi < G; gi++)
+          for (let gj = 0; gj < G; gj++)
+            fb.push({
+              x: margin + ((gj + Math.random()) / G) * (maxX - margin),
+              y: margin + ((gi + Math.random()) / G) * (maxY - margin),
+            });
+        fb.sort(() => Math.random() - 0.5);
+        for (const { x, y } of fb) { if (tryAt(x, y)) break; }
+      }
+    }
+  }
+
+  const total = imgs.length;
+  const st    = document.getElementById('status');
+  if (nOk === total) {
+    st.className = 'status ok';
+    st.textContent = `${nOk} imagen${nOk > 1 ? 'es' : ''} distribuida${nOk > 1 ? 's' : ''} ✓`;
+  } else if (nOk === 0) {
+    st.className = 'status warn';
+    st.textContent = 'Sin espacio — reduce separación o márgenes';
+  } else {
+    st.className = 'status warn';
+    st.textContent = `${nOk} de ${total} colocadas — reduce separación`;
+  }
+
+  render();
+}
+
+function overlapsAny(r, rects, gap) {
+  for (const p of rects) {
+    if (!(r.x + r.w + gap <= p.x || p.x + p.w + gap <= r.x ||
+          r.y + r.h + gap <= p.y || p.y + p.h + gap <= r.y)) return true;
+  }
+  return false;
+}
+
+// Returns true if rectangle (ix,iy,iw,ih) fits inside the current shape
+function isInShape(ix, iy, iw, ih, margin) {
+  if (curShape === 'rect') return true; // already guaranteed by maxX/maxY clamping
+  const cx  = cv.width  / 2;
+  const cy  = cv.height / 2;
+  const hw  = cv.width  / 2 - margin;
+  const hh  = cv.height / 2 - margin;
+  if (hw <= 0 || hh <= 0) return false;
+  const corners = [
+    { x: ix,      y: iy      },
+    { x: ix + iw, y: iy      },
+    { x: ix,      y: iy + ih },
+    { x: ix + iw, y: iy + ih },
+  ];
+  switch (curShape) {
+    case 'circle': {
+      const r = Math.min(hw, hh);
+      return corners.every(c => Math.hypot(c.x - cx, c.y - cy) <= r);
+    }
+    case 'diamond':
+      return corners.every(c =>
+        Math.abs(c.x - cx) / hw + Math.abs(c.y - cy) / hh <= 1
+      );
+    case 'ellipse':
+      return corners.every(c =>
+        ((c.x - cx) / hw) ** 2 + ((c.y - cy) / hh) ** 2 <= 1
+      );
+  }
+  return true;
+}
+
+// Draw the shape boundary as a dashed outline
+function drawShapeOutline(c, W, H, scale) {
+  const cx  = W / 2;
+  const cy  = H / 2;
+  const mg  = gv('margin') * scale;
+  const hw  = cx - mg;
+  const hh  = cy - mg;
+  if (hw <= 0 || hh <= 0) return;
+
+  c.save();
+  c.strokeStyle  = outlineColor;
+  c.lineWidth    = Math.max(2, 3 * scale);
+  c.setLineDash([12 * scale, 8 * scale]);
+
+  c.beginPath();
+  switch (curShape) {
+    case 'rect':
+      c.rect(mg, mg, W - 2 * mg, H - 2 * mg);
+      break;
+    case 'circle': {
+      const r = Math.min(hw, hh);
+      c.arc(cx, cy, r, 0, Math.PI * 2);
+      break;
+    }
+    case 'diamond':
+      c.moveTo(cx,        mg);
+      c.lineTo(W - mg,    cy);
+      c.lineTo(cx,    H - mg);
+      c.lineTo(mg,        cy);
+      c.closePath();
+      break;
+    case 'ellipse':
+      c.ellipse(cx, cy, hw, hh, 0, 0, Math.PI * 2);
+      break;
+  }
+  c.stroke();
+  c.restore();
+}
+
+// ────────────────────────────────────────────────────────────
+// RENDER
+// ────────────────────────────────────────────────────────────
+function render() {
+  renderTo(ctx, cv.width, cv.height, 1);
+}
+
+function renderTo(c, W, H, scale) {
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = bgColor;
+  c.fillRect(0, 0, W, H);
+
+  for (const it of placed) {
+    c.save();
+    if (globalBW) c.filter = 'grayscale(1) contrast(1.05)';
+    c.beginPath();
+    c.rect(it.x * scale, it.y * scale, it.w * scale, it.h * scale);
+    c.clip();
+    c.drawImage(it.img, it.sx, it.sy, it.sw, it.sh,
+                it.x * scale, it.y * scale, it.w * scale, it.h * scale);
+    c.filter = 'none';
+    c.restore();
+  }
+
+  for (const t of texts) {
+    c.save();
+    c.font      = `${Math.round(t.fSize * scale)}px ${t.fFamily}`;
+    c.fillStyle = t.color;
+    c.fillText(t.text, t.x * scale, t.y * scale);
+    c.restore();
+  }
+
+  if (showOutline) drawShapeOutline(c, W, H, scale);
+}
+
+// ────────────────────────────────────────────────────────────
+// MOUSE — canvas position helper
+// ────────────────────────────────────────────────────────────
+function canvasPos(e) {
+  const r = cv.getBoundingClientRect();
+  return {
+    x: (e.clientX - r.left)  * (cv.width  / r.width),
+    y: (e.clientY - r.top)   * (cv.height / r.height),
+  };
+}
+
+// hit-test text items (returns last item that contains point, or null)
+function hitText(mx, my) {
+  for (let i = texts.length - 1; i >= 0; i--) {
+    const t = texts[i];
+    ctx.font = `${t.fSize}px ${t.fFamily}`;
+    const tw = ctx.measureText(t.text).width;
+    const pad = 10;
+    if (mx >= t.x - pad && mx <= t.x + tw + pad &&
+        my >= t.y - t.fSize - pad && my <= t.y + pad) return t;
+  }
+  return null;
+}
+
+// ── mousedown ──
+cv.addEventListener('mousedown', e => {
+  const { x, y } = canvasPos(e);
+
+  if (textMode) {
+    const txt = document.getElementById('textInput').value.trim();
+    if (!txt) { alert('Escribe algo en el campo de texto primero.'); return; }
+    texts.push({
+      id: uid++, x, y: y + gv('fSize') * 0.1,
+      text: txt,
+      fSize:   gv('fSize'),
+      fFamily: document.getElementById('fFamily').value,
+      color:   document.getElementById('txtPicker').value,
+    });
+    render();
+    return;
+  }
+
+  const hit = hitText(x, y);
+  if (hit) {
+    dragging = { item: hit, ox: x - hit.x, oy: y - hit.y };
+    cv.classList.add('drag-text');
+  }
+});
+
+// ── mousemove ──
+cv.addEventListener('mousemove', e => {
+  if (!dragging) {
+    if (!textMode) {
+      const { x, y } = canvasPos(e);
+      cv.style.cursor = hitText(x, y) ? 'grab' : 'default';
+    }
+    return;
+  }
+  const { x, y } = canvasPos(e);
+  dragging.item.x = x - dragging.ox;
+  dragging.item.y = y - dragging.oy;
+  render();
+});
+
+// ── mouseup / leave ──
+function endDrag() { dragging = null; cv.classList.remove('drag-text'); }
+cv.addEventListener('mouseup',    endDrag);
+cv.addEventListener('mouseleave', endDrag);
+
+// ── dblclick → delete text ──
+cv.addEventListener('dblclick', e => {
+  if (textMode) return;
+  const { x, y } = canvasPos(e);
+  const hit = hitText(x, y);
+  if (hit) { texts = texts.filter(t => t.id !== hit.id); render(); }
+});
+
+// ────────────────────────────────────────────────────────────
+// ACTIONS
+// ────────────────────────────────────────────────────────────
+document.getElementById('btnPlace').onclick = placeAll;
+
+document.getElementById('btnDownload').onclick = () => {
+  const s     = SIZES[curSize];
+  const scale = s.ew / cv.width;
+  const exp   = document.createElement('canvas');
+  exp.width   = s.ew; exp.height = s.eh;
+  const ectx  = exp.getContext('2d');
+  renderTo(ectx, s.ew, s.eh, scale);
+  exp.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = `layout_${s.ew}x${s.eh}.png`;
+    a.click(); URL.revokeObjectURL(url);
+  }, 'image/png');
+};
+
+// ── Initial render (empty canvas) ──
+render();
+</script>
+</body>
+</html>
