@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poster Generativo — Herramientas de diseño</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f2efe9;
+  --surface: #ffffff;
+  --surface-2: #f5f2ed;
+  --border: #e4e0d8;
+  --border-2: #d0ccc5;
+  --text: #1a1a1a;
+  --text-2: #666;
+  --text-3: #999;
+  --radius: 10px;
+  --radius-sm: 7px;
+  --header-h: 52px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.app-header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text-2);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s, color 0.12s;
+}
+.back-link:hover { background: var(--surface-2); color: var(--text); }
+
+.header-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.header-right { width: 100px; }
+
+/* ── MAIN LAYOUT ── */
+.app {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── LEFT PANEL ── */
+.panel {
+  width: 272px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+/* ── RIGHT PREVIEW ── */
+.preview-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.stitle {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 10px;
+}
+
+.ctrl { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+.ctrl:last-child { margin-bottom: 0; }
+.ctrl label {
+  font-size: 10px;
+  color: var(--text-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ctrl label b { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--text); }
+
+.mrow { display: flex; gap: 4px; flex-wrap: wrap; }
+.mb {
+  font-size: 10px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  background: var(--surface-2);
+  color: var(--text-2);
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.mb:hover { border-color: var(--text-3); }
+.mb.on { background: var(--text); color: var(--surface); border-color: var(--text); }
+
+.acts { display: flex; flex-direction: column; gap: 6px; }
+
+.bp {
+  background: var(--text);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: opacity 0.12s;
+}
+.bp:hover { opacity: 0.82; }
+
+.bs {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.12s;
+}
+.bs:hover { background: var(--surface-2); }
+
+.poster-wrap {
+  background: #e8e6e0;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+}
+canvas#poster { display: block; border-radius: 4px; }
+
+.variations-label {
+  font-size: 10px;
+  color: var(--text-3);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  align-self: flex-start;
+}
+
+.grid-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; }
+
+.mini-thumb {
+  cursor: pointer;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1.5px solid transparent;
+  transition: border-color 0.12s, transform 0.12s;
+}
+.mini-thumb:hover { transform: translateY(-1px); }
+.mini-thumb.active { border-color: var(--text); }
+.mini-thumb canvas { display: block; }
+
+.size-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.size-btn {
+  font-size: 10px;
+  padding: 6px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--surface-2);
+  color: var(--text-2);
+  text-align: center;
+  line-height: 1.4;
+  transition: all 0.12s;
+}
+.size-btn:hover { border-color: var(--text-3); }
+.size-btn.on { background: var(--text); color: var(--surface); border-color: var(--text); }
+.size-btn span { display: block; font-size: 9px; opacity: 0.65; margin-top: 1px; }
+
+.custom-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin-top: 7px;
+}
+.custom-row input[type=number] {
+  width: 58px;
+  padding: 5px 6px;
+  font-size: 11px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  text-align: center;
+}
+.custom-row span { font-size: 11px; color: var(--text-3); }
+
+.dim-label {
+  font-size: 10px;
+  color: var(--text-3);
+  text-align: center;
+  margin-top: 5px;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <a href="index.html" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Herramientas
+  </a>
+  <span class="header-title">Poster generativo</span>
+  <div class="header-right"></div>
+</header>
+
+<!-- MAIN -->
+<div class="app">
+
+  <!-- LEFT PANEL -->
+  <div class="panel">
+
+    <div class="card">
+      <div class="stitle">Paleta de color</div>
+      <div class="ctrl">
+        <label>Paleta <b id="vpal">Neon</b></label>
+        <div class="mrow" id="palrow">
+          <div class="mb on" data-p="neon">Neon</div>
+          <div class="mb" data-p="sunset">Sunset</div>
+          <div class="mb" data-p="ocean">Ocean</div>
+          <div class="mb" data-p="candy">Candy</div>
+          <div class="mb" data-p="aurora">Aurora</div>
+        </div>
+      </div>
+      <div class="ctrl">
+        <label>Fondo <b id="vbg">Claro</b></label>
+        <div class="mrow" id="bgrow">
+          <div class="mb on" data-bg="light">Claro</div>
+          <div class="mb" data-bg="warm">Cálido</div>
+          <div class="mb" data-bg="dark">Oscuro</div>
+          <div class="mb" data-bg="white">Blanco</div>
+        </div>
+      </div>
+      <div class="ctrl">
+        <label>Opacidad formas <b id="vop">65%</b></label>
+        <input type="range" id="op" min="20" max="100" step="1" value="65">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stitle">Formas</div>
+      <div class="ctrl">
+        <label>Tipo <b id="vshape">Mix</b></label>
+        <div class="mrow" id="shaperow">
+          <div class="mb on" data-sh="mix">Mix</div>
+          <div class="mb" data-sh="triangles">Triángulos</div>
+          <div class="mb" data-sh="curves">Curvas</div>
+          <div class="mb" data-sh="arcs">Arcos</div>
+          <div class="mb" data-sh="steps">Escalones</div>
+        </div>
+      </div>
+      <div class="ctrl">
+        <label>Cantidad <b id="vn">4</b></label>
+        <input type="range" id="nshapes" min="2" max="8" step="1" value="4">
+      </div>
+      <div class="ctrl">
+        <label>Tamaño <b id="vsz">70%</b></label>
+        <input type="range" id="sz" min="30" max="120" step="1" value="70">
+      </div>
+      <div class="ctrl">
+        <label>Variación posición <b id="vpos">50%</b></label>
+        <input type="range" id="posv" min="0" max="100" step="1" value="50">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stitle">Gradiente</div>
+      <div class="ctrl">
+        <label>Suavidad <b id="vsmooth">60%</b></label>
+        <input type="range" id="smooth" min="0" max="100" step="1" value="60">
+      </div>
+      <div class="ctrl">
+        <label>Dirección <b id="vdir">Diagonal</b></label>
+        <div class="mrow" id="dirrow">
+          <div class="mb" data-dir="top">Arriba</div>
+          <div class="mb on" data-dir="diag">Diagonal</div>
+          <div class="mb" data-dir="radial">Radial</div>
+          <div class="mb" data-dir="rand">Aleatorio</div>
+        </div>
+      </div>
+      <div class="ctrl">
+        <label>Blur <b id="vblur">0px</b></label>
+        <input type="range" id="blur" min="0" max="120" step="2" value="0">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stitle">Tamaño de descarga</div>
+      <div class="size-grid" id="sizerow">
+        <div class="size-btn on" data-w="1080" data-h="1080">Instagram<span>1080 × 1080</span></div>
+        <div class="size-btn" data-w="1080" data-h="1920">Stories<span>1080 × 1920</span></div>
+        <div class="size-btn" data-w="2480" data-h="3508">A4 300dpi<span>2480 × 3508</span></div>
+        <div class="size-btn" data-w="1684" data-h="2384">A4 72dpi<span>1684 × 2384</span></div>
+        <div class="size-btn" data-w="1920" data-h="1080">Landscape<span>1920 × 1080</span></div>
+        <div class="size-btn" data-w="2000" data-h="3000">Poster<span>2000 × 3000</span></div>
+      </div>
+      <div class="custom-row">
+        <input type="number" id="cw" placeholder="W" min="100" max="8000" value="">
+        <span>×</span>
+        <input type="number" id="ch" placeholder="H" min="100" max="8000" value="">
+        <button class="mb" id="btn-custom" style="margin:0;padding:4px 9px">OK</button>
+      </div>
+      <div class="dim-label" id="dimlabel">1080 × 1080 px</div>
+    </div>
+
+    <div class="card">
+      <div class="acts">
+        <button class="bp" id="bgen">⚄ Nuevo aleatorio</button>
+        <button class="bs" id="bdl">↓ Descargar PNG</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PREVIEW -->
+  <div class="preview-area">
+    <div class="poster-wrap" id="posterwrap">
+      <canvas id="poster" width="380" height="380"></canvas>
+    </div>
+    <div class="variations-label">Variaciones</div>
+    <div class="grid-row" id="thumbgrid"></div>
+  </div>
+</div>
+
+<script>
+const cv = document.getElementById('poster');
+const ctx = cv.getContext('2d');
+
+const PALETTES = {
+  neon:   [ ['#FF2D9C','#FFAD00'], ['#8B2FFF','#FF2D9C'], ['#00D4FF','#8B2FFF'], ['#FFAD00','#00D4FF'], ['#FF5FE5','#FFDE00'] ],
+  sunset: [ ['#FF6B35','#FFC93C'], ['#FF3CAC','#FF6B35'], ['#7B2FBE','#FF3CAC'], ['#FFC93C','#7B2FBE'], ['#FF8C42','#FFED99'] ],
+  ocean:  [ ['#00B4D8','#90E0EF'], ['#0077B6','#00B4D8'], ['#48CAE4','#ADE8F4'], ['#023E8A','#0077B6'], ['#CAF0F8','#48CAE4'] ],
+  candy:  [ ['#FF9EBC','#FFCF77'], ['#B5E4FF','#FF9EBC'], ['#A7F5B2','#B5E4FF'], ['#FFA3E0','#A7F5B2'], ['#FFCF77','#FF9EBC'] ],
+  aurora: [ ['#00F5D4','#9B5DE5'], ['#F15BB5','#00F5D4'], ['#FEE440','#F15BB5'], ['#9B5DE5','#FEE440'], ['#00BBF9','#9B5DE5'] ],
+};
+const BG_COLORS = { light:'#E8E6E1', warm:'#EDE8E0', dark:'#1A1820', white:'#FFFFFF' };
+
+let currentPalette='neon', currentBg='light', currentShape='mix', currentDir='diag';
+let currentSeed=Math.random()*9999|0, thumbSeeds=[];
+let exportW=1080, exportH=1080;
+const MAX_PREVIEW=380;
+
+function previewDims(ew,eh) {
+  const ratio=ew/eh;
+  return ratio>=1 ? [MAX_PREVIEW, Math.round(MAX_PREVIEW/ratio)] : [Math.round(MAX_PREVIEW*ratio), MAX_PREVIEW];
+}
+
+function setExportSize(w,h) {
+  exportW=w; exportH=h;
+  const [pw,ph]=previewDims(w,h);
+  cv.width=pw; cv.height=ph;
+  document.getElementById('dimlabel').textContent=w+' × '+h+' px';
+  drawPoster(cv,ctx,pw,ph,currentSeed);
+  updateThumbs();
+}
+
+const SL = {
+  op:{id:'op',out:'vop',fmt:v=>v+'%'}, nshapes:{id:'nshapes',out:'vn',fmt:v=>+v},
+  sz:{id:'sz',out:'vsz',fmt:v=>v+'%'}, posv:{id:'posv',out:'vpos',fmt:v=>v+'%'},
+  smooth:{id:'smooth',out:'vsmooth',fmt:v=>v+'%'}, blur:{id:'blur',out:'vblur',fmt:v=>v+'px'},
+};
+function gp(k){return parseFloat(document.getElementById(SL[k].id).value);}
+Object.values(SL).forEach(s=>{
+  document.getElementById(s.id).addEventListener('input',()=>{
+    document.getElementById(s.out).textContent=s.fmt(document.getElementById(s.id).value);
+    drawPoster(cv,ctx,cv.width,cv.height,currentSeed); updateThumbs();
+  });
+});
+
+document.getElementById('palrow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#palrow .mb').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  currentPalette=b.dataset.p; document.getElementById('vpal').textContent=b.textContent;
+  drawPoster(cv,ctx,cv.width,cv.height,currentSeed); updateThumbs();
+});
+document.getElementById('bgrow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#bgrow .mb').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  currentBg=b.dataset.bg; document.getElementById('vbg').textContent=b.textContent;
+  drawPoster(cv,ctx,cv.width,cv.height,currentSeed); updateThumbs();
+});
+document.getElementById('shaperow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#shaperow .mb').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  currentShape=b.dataset.sh; document.getElementById('vshape').textContent=b.textContent;
+  drawPoster(cv,ctx,cv.width,cv.height,currentSeed); updateThumbs();
+});
+document.getElementById('dirrow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#dirrow .mb').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  currentDir=b.dataset.dir; document.getElementById('vdir').textContent=b.textContent;
+  drawPoster(cv,ctx,cv.width,cv.height,currentSeed); updateThumbs();
+});
+document.getElementById('sizerow').querySelectorAll('.size-btn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.size-btn').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  setExportSize(parseInt(b.dataset.w),parseInt(b.dataset.h));
+});
+document.getElementById('btn-custom').onclick=()=>{
+  const w=parseInt(document.getElementById('cw').value), h=parseInt(document.getElementById('ch').value);
+  if(w>=100&&w<=8000&&h>=100&&h<=8000){ document.querySelectorAll('.size-btn').forEach(x=>x.classList.remove('on')); setExportSize(w,h); }
+};
+
+function makeRng(seed){ let s=(seed>>>0)||1; return ()=>{ s=Math.imul(s,1664525)+1013904223>>>0; return s/4294967296; }; }
+
+function drawShape(c2,type,rng,cw,ch,sz,posv,pair,opacity,blurPx,dir,smooth) {
+  const x=rng()*cw*posv/100+cw*(1-posv/100)*0.5, y=rng()*ch*posv/100+ch*(1-posv/100)*0.5;
+  const size=(sz/100)*Math.min(cw,ch)*(0.5+rng()*0.6);
+  c2.save();
+  if(blurPx>0) c2.filter=`blur(${blurPx*(cw/380)}px)`;
+  c2.globalAlpha=opacity/100;
+  let gx1=x-size/2,gy1=y-size/2,gx2=x+size/2,gy2=y+size/2;
+  if(dir==='top'){ gx1=x;gy1=y-size;gx2=x;gy2=y+size; }
+  if(dir==='rand'){ gx1=rng()*cw;gy1=rng()*ch;gx2=rng()*cw;gy2=rng()*ch; }
+  if(dir==='diag'){ gx1=x-size*0.6;gy1=y-size*0.6;gx2=x+size*0.6;gy2=y+size*0.6; }
+  const smoothStop=0.3+smooth/100*0.5, col1=pair[0], col2=pair[1];
+  let g;
+  if(dir==='radial'){ g=c2.createRadialGradient(x,y,0,x,y,size); }
+  else { g=c2.createLinearGradient(gx1,gy1,gx2,gy2); }
+  g.addColorStop(0,col1); g.addColorStop(smoothStop,col2); g.addColorStop(1,col1);
+  c2.fillStyle=g; c2.beginPath();
+  const shTypes=['triangle','curve','arc','steps'];
+  const sh=type==='mix'?shTypes[Math.floor(rng()*shTypes.length)]:type==='triangles'?'triangle':type==='curves'?'curve':type==='arcs'?'arc':'steps';
+  if(sh==='triangle'){
+    const ang=rng()*Math.PI*2, pts=[0,1,2].map(i=>({x:x+Math.cos(ang+i*Math.PI*2/3)*size,y:y+Math.sin(ang+i*Math.PI*2/3)*size}));
+    c2.moveTo(pts[0].x,pts[0].y); c2.lineTo(pts[1].x,pts[1].y); c2.lineTo(pts[2].x,pts[2].y); c2.closePath();
+  } else if(sh==='curve'){
+    const ang=rng()*Math.PI*2, r1=size, r2=size*(0.4+rng()*0.4);
+    c2.moveTo(x+Math.cos(ang)*r1,y+Math.sin(ang)*r1);
+    c2.bezierCurveTo(x+Math.cos(ang+1)*r1*1.5,y+Math.sin(ang+1)*r1*1.5,x+Math.cos(ang-1)*r2*1.5,y+Math.sin(ang-1)*r2*1.5,x+Math.cos(ang+Math.PI)*r2,y+Math.sin(ang+Math.PI)*r2);
+    c2.bezierCurveTo(x+Math.cos(ang+Math.PI-1)*r2*0.8,y+Math.sin(ang+Math.PI-1)*r2*0.8,x+Math.cos(ang+1)*r1*0.8,y+Math.sin(ang+1)*r1*0.8,x+Math.cos(ang)*r1,y+Math.sin(ang)*r1);
+  } else if(sh==='arc'){
+    const a1=rng()*Math.PI*2, sweep=Math.PI*(0.4+rng()*0.8), thickness=size*(0.25+rng()*0.35);
+    c2.arc(x,y,size,a1,a1+sweep); c2.arc(x,y,size-thickness,a1+sweep,a1,true); c2.closePath();
+  } else {
+    const steps=2+Math.floor(rng()*3), ang=rng()*Math.PI/2, cos=Math.cos(ang),sin=Math.sin(ang), stepH=size*2/steps;
+    c2.moveTo(x-size*cos-size*sin,y-size*sin+size*cos);
+    for(let i=0;i<steps;i++){
+      const ox=(i/steps*2-1)*size, oy=(-1+i/steps)*size;
+      c2.lineTo(x+ox*cos-oy*sin,y+ox*sin+oy*cos); c2.lineTo(x+ox*cos-(oy+stepH)*sin,y+ox*sin+(oy+stepH)*cos);
+    }
+    c2.lineTo(x+size*cos-size*sin,y+size*sin+size*cos); c2.closePath();
+  }
+  c2.fill(); c2.filter='none'; c2.restore();
+}
+
+function drawPoster(canv,c,cw,ch,seed) {
+  const rng=makeRng(seed), palette=PALETTES[currentPalette], bgColor=BG_COLORS[currentBg];
+  const opacity=gp('op'), n=Math.round(gp('nshapes')), sz=gp('sz'), posv=gp('posv'), smooth=gp('smooth'), blurPx=gp('blur');
+  const dir=currentDir==='rand'?['top','diag','radial'][Math.floor(rng()*3)]:currentDir;
+  c.clearRect(0,0,cw,ch); c.fillStyle=bgColor; c.fillRect(0,0,cw,ch);
+  for(let i=0;i<n;i++){ const pair=palette[Math.floor(rng()*palette.length)]; drawShape(c,currentShape,rng,cw,ch,sz,posv,pair,opacity,blurPx,dir,smooth); }
+}
+
+function buildThumbs() {
+  thumbSeeds=Array.from({length:6},()=>Math.random()*99999|0);
+  const grid=document.getElementById('thumbgrid'); grid.innerHTML='';
+  const [tw,th]=previewDims(exportW,exportH), thumbH=Math.round(90*th/tw);
+  thumbSeeds.forEach((seed,i)=>{
+    const wrap=document.createElement('div'); wrap.className='mini-thumb'+(i===0?' active':'');
+    const tc=document.createElement('canvas'); tc.width=90; tc.height=thumbH;
+    drawPoster(tc,tc.getContext('2d'),90,thumbH,seed);
+    wrap.appendChild(tc);
+    wrap.onclick=()=>{ document.querySelectorAll('.mini-thumb').forEach(t=>t.classList.remove('active')); wrap.classList.add('active'); currentSeed=seed; drawPoster(cv,ctx,cv.width,cv.height,seed); };
+    grid.appendChild(wrap);
+  });
+  currentSeed=thumbSeeds[0]; drawPoster(cv,ctx,cv.width,cv.height,currentSeed);
+}
+
+function updateThumbs() {
+  document.getElementById('thumbgrid').querySelectorAll('.mini-thumb').forEach((wrap,i)=>{
+    const tc=wrap.querySelector('canvas'); drawPoster(tc,tc.getContext('2d'),tc.width,tc.height,thumbSeeds[i]);
+  });
+  drawPoster(cv,ctx,cv.width,cv.height,currentSeed);
+}
+
+document.getElementById('bgen').onclick=()=>buildThumbs();
+document.getElementById('bdl').onclick=()=>{
+  const exp=document.createElement('canvas'); exp.width=exportW; exp.height=exportH;
+  drawPoster(exp,exp.getContext('2d'),exportW,exportH,currentSeed);
+  const a=document.createElement('a'); a.download=`poster_${exportW}x${exportH}.png`; a.href=exp.toDataURL('image/png'); a.click();
+};
+
+setExportSize(1080,1080);
+buildThumbs();
+</script>
+</body>
+</html>
