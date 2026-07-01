@@ -250,6 +250,7 @@ canvas#poster { display: block; border-radius: 4px; }
   margin-top: 5px;
 }
 </style>
+<link rel="stylesheet" href="studio.css">
 </head>
 <body>
 
@@ -270,6 +271,8 @@ canvas#poster { display: block; border-radius: 4px; }
 
   <!-- LEFT PANEL -->
   <div class="panel">
+
+    <div class="sheet-handle"><div class="sh-grip"></div><span class="sh-label">Controles</span><svg class="sh-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></div>
 
     <div class="card">
       <div class="stitle">Paleta de color</div>
@@ -540,5 +543,6 @@ document.getElementById('bdl').onclick=()=>{
 setExportSize(1080,1080);
 buildThumbs();
 </script>
+<script src="studio.js"></script>
 </body>
 </html>

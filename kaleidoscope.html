@@ -256,6 +256,7 @@ canvas {
   display: block;
 }
 </style>
+<link rel="stylesheet" href="studio.css">
 </head>
 <body>
 
@@ -276,6 +277,8 @@ canvas {
 
   <!-- LEFT: controles -->
   <div class="ctrl-panel">
+
+    <div class="sheet-handle"><div class="sh-grip"></div><span class="sh-label">Controles</span><svg class="sh-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></div>
 
     <div class="card">
       <div class="stitle">Fotos <span class="badge" id="badge">0 / 10</span></div>
@@ -549,5 +552,6 @@ document.getElementById('bdl').onclick=()=>{
 
 buildGrid(); rebuildAndRender();
 </script>
+<script src="studio.js"></script>
 </body>
 </html>

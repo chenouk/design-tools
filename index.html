@@ -232,6 +232,31 @@ footer {
   height: 100%;
 }
 </style>
+<link rel="stylesheet" href="studio.css">
+<style>
+  .card { background: var(--surface); }
+  .card-title { font-family: var(--font-display); }
+  .eyebrow { font-family: var(--font-mono); }
+  .card:hover { box-shadow: 0 14px 44px rgba(28,26,20,0.12); border-color: var(--border-2); }
+  .arrow { background: var(--text); }
+
+  @media (max-width: 1100px) {
+    header, .grid, footer { padding-left: 32px; padding-right: 32px; }
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 760px) {
+    header { padding: 34px 20px 0; }
+    h1 { font-size: 28px; }
+    .subtitle { font-size: 14px; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 26px 20px 44px; }
+    .card-preview { height: 156px; }
+    footer { flex-direction: column; gap: 6px; align-items: flex-start; padding: 16px 20px; }
+  }
+  @media (max-width: 460px) {
+    .grid { grid-template-columns: 1fr; }
+    .card-preview { height: 190px; }
+  }
+</style>
 </head>
 <body>
 
@@ -460,6 +485,190 @@ footer {
     </div>
   </a>
 
+  <!-- FANZINE MAKER -->
+  <a class="card" href="fanzine.html">
+    <div class="card-preview" style="background:#0d0d0d">
+      <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+        <rect width="340" height="220" fill="#0d0d0d"/>
+        <!-- Sheet outline -->
+        <rect x="60" y="30" width="220" height="155" rx="2" fill="none" stroke="#333" stroke-width="1"/>
+        <!-- Fold line vertical -->
+        <line x1="170" y1="30" x2="170" y2="185" stroke="#d4ff00" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.6"/>
+        <!-- Fold line horizontal -->
+        <line x1="60" y1="107" x2="280" y2="107" stroke="#d4ff00" stroke-width="0.8" stroke-dasharray="4,3" opacity="0.6"/>
+        <!-- Cut line -->
+        <line x1="170" y1="107" x2="280" y2="107" stroke="#ff4444" stroke-width="1.2" opacity="0.7"/>
+        <!-- Page labels -->
+        <text x="115" y="72" text-anchor="middle" font-family="Courier New,monospace" font-size="9" fill="#555">8 ↕</text>
+        <text x="225" y="72" text-anchor="middle" font-family="Courier New,monospace" font-size="9" fill="#d4ff00">1</text>
+        <text x="115" y="150" text-anchor="middle" font-family="Courier New,monospace" font-size="9" fill="#555">7 ↕</text>
+        <text x="225" y="150" text-anchor="middle" font-family="Courier New,monospace" font-size="9" fill="#777">2</text>
+        <!-- Mini assembled zine on the right -->
+        <rect x="295" y="60" width="32" height="46" rx="1" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+        <rect x="297" y="62" width="28" height="42" rx="1" fill="#161616"/>
+        <line x1="311" y1="62" x2="311" y2="104" stroke="#333" stroke-width="0.5"/>
+        <text x="305" y="75" text-anchor="middle" font-family="Courier New,monospace" font-size="5" fill="#d4ff00">FAN</text>
+        <text x="305" y="83" text-anchor="middle" font-family="Courier New,monospace" font-size="5" fill="#d4ff00">ZIN</text>
+        <text x="305" y="91" text-anchor="middle" font-family="Courier New,monospace" font-size="5" fill="#d4ff00">E</text>
+        <!-- Arrow from sheet to zine -->
+        <path d="M 285 107 Q 290 107 295 83" fill="none" stroke="#555" stroke-width="0.8"/>
+        <polygon points="295,80 293,85 298,84" fill="#555"/>
+        <!-- Corner label -->
+        <text x="68" y="42" font-family="Courier New,monospace" font-size="7" fill="#444" letter-spacing="0.05em">CARA A</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">Herramienta</div>
+      <div class="card-title">Fanzine Maker</div>
+      <div class="card-desc">Maqueta un fanzine en A4 o A3. Sube imágenes, ordena páginas y genera el layout de impresión listo para doblar y cortar.</div>
+      <div class="card-footer">
+        <div class="card-chips">
+          <span class="chip">Impresión</span>
+          <span class="chip">A4 / A3</span>
+          <span class="chip">Plegado</span>
+        </div>
+        <div class="arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </a>
+
+  <!-- PIXEL STRETCH -->
+  <a class="card" href="pixelstretch.html">
+    <div class="card-preview" style="background:#1a1008">
+      <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+        <!-- Horizontal pixel stretch bands -->
+        <rect width="340" height="220" fill="#1a1008"/>
+        <rect x="0" y="0"   width="340" height="7"  fill="#E8A84C"/>
+        <rect x="0" y="7"   width="340" height="5"  fill="#D4923A"/>
+        <rect x="0" y="12"  width="340" height="6"  fill="#E8B05A"/>
+        <rect x="0" y="18"  width="340" height="4"  fill="#C87E2C"/>
+        <rect x="0" y="22"  width="340" height="7"  fill="#D49040"/>
+        <rect x="0" y="29"  width="340" height="5"  fill="#E4A84E"/>
+        <rect x="0" y="34"  width="340" height="6"  fill="#C87030"/>
+        <rect x="0" y="40"  width="340" height="4"  fill="#B86428"/>
+        <rect x="0" y="44"  width="340" height="7"  fill="#C87838"/>
+        <rect x="0" y="51"  width="340" height="5"  fill="#B86030"/>
+        <rect x="0" y="56"  width="340" height="6"  fill="#A85428"/>
+        <rect x="0" y="62"  width="340" height="4"  fill="#985022"/>
+        <rect x="0" y="66"  width="340" height="7"  fill="#B06030"/>
+        <rect x="0" y="73"  width="340" height="5"  fill="#A05428"/>
+        <rect x="0" y="78"  width="340" height="6"  fill="#904820"/>
+        <rect x="0" y="84"  width="340" height="4"  fill="#884220"/>
+        <rect x="0" y="88"  width="340" height="7"  fill="#7A3A1C"/>
+        <rect x="0" y="95"  width="340" height="5"  fill="#6E3018"/>
+        <rect x="0" y="100" width="340" height="6"  fill="#7E3C20"/>
+        <rect x="0" y="106" width="340" height="4"  fill="#6A2C14"/>
+        <rect x="0" y="110" width="340" height="7"  fill="#5E2410"/>
+        <rect x="0" y="117" width="340" height="5"  fill="#6C3018"/>
+        <rect x="0" y="122" width="340" height="6"  fill="#5A2810"/>
+        <rect x="0" y="128" width="340" height="4"  fill="#50200C"/>
+        <rect x="0" y="132" width="340" height="7"  fill="#5C2C14"/>
+        <rect x="0" y="139" width="340" height="5"  fill="#4E2010"/>
+        <rect x="0" y="144" width="340" height="6"  fill="#44180C"/>
+        <rect x="0" y="150" width="340" height="4"  fill="#3C1408"/>
+        <rect x="0" y="154" width="340" height="7"  fill="#481C10"/>
+        <rect x="0" y="161" width="340" height="5"  fill="#3A1208"/>
+        <rect x="0" y="166" width="340" height="6"  fill="#301008"/>
+        <rect x="0" y="172" width="340" height="4"  fill="#2A0C04"/>
+        <rect x="0" y="176" width="340" height="7"  fill="#340E06"/>
+        <rect x="0" y="183" width="340" height="5"  fill="#280C04"/>
+        <rect x="0" y="188" width="340" height="6"  fill="#200804"/>
+        <rect x="0" y="194" width="340" height="4"  fill="#1C0804"/>
+        <rect x="0" y="198" width="340" height="7"  fill="#240A04"/>
+        <rect x="0" y="205" width="340" height="5"  fill="#1A0604"/>
+        <rect x="0" y="210" width="340" height="10" fill="#160402"/>
+        <!-- Silhouette subject suggestion -->
+        <ellipse cx="210" cy="108" rx="14" ry="32" fill="rgba(0,0,0,0.55)"/>
+        <rect x="200" y="135" width="20" height="45" rx="3" fill="rgba(0,0,0,0.5)"/>
+        <ellipse cx="210" cy="93" rx="9" ry="10" fill="rgba(0,0,0,0.55)"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">Herramienta</div>
+      <div class="card-title">Pixel Stretch</div>
+      <div class="card-desc">Estira píxeles de una imagen para crear fondos con bandas de color. Compón sujetos PNG encima y exporta.</div>
+      <div class="card-footer">
+        <div class="card-chips">
+          <span class="chip">Imagen</span>
+          <span class="chip">Efecto</span>
+          <span class="chip">Composición</span>
+        </div>
+        <div class="arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </a>
+
+  <!-- EFECTOS DE IMAGEN -->
+  <a class="card" href="efectos.html">
+    <div class="card-preview" style="background:#111">
+      <svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+        <rect width="340" height="220" fill="#111"/>
+        <!-- ASCII block -->
+        <text x="16" y="32" font-family="Courier New,monospace" font-size="8" fill="#fbf8f1" opacity="0.7">. : - = + * # % @</text>
+        <text x="16" y="44" font-family="Courier New,monospace" font-size="8" fill="#fbf8f1" opacity="0.55">: = + * # @ # * + =</text>
+        <text x="16" y="56" font-family="Courier New,monospace" font-size="8" fill="#fbf8f1" opacity="0.45">+ * # @ @ # * + : -</text>
+        <!-- Halftone dots -->
+        <circle cx="200" cy="30" r="8" fill="#FF2D9C" opacity="0.8"/>
+        <circle cx="220" cy="30" r="5" fill="#FF2D9C" opacity="0.7"/>
+        <circle cx="238" cy="30" r="3" fill="#FF2D9C" opacity="0.6"/>
+        <circle cx="252" cy="30" r="1.5" fill="#FF2D9C" opacity="0.5"/>
+        <circle cx="200" cy="52" r="6" fill="#FF2D9C" opacity="0.7"/>
+        <circle cx="220" cy="52" r="4" fill="#FF2D9C" opacity="0.65"/>
+        <circle cx="238" cy="52" r="2" fill="#FF2D9C" opacity="0.5"/>
+        <circle cx="200" cy="70" r="3" fill="#FF2D9C" opacity="0.6"/>
+        <circle cx="220" cy="70" r="2" fill="#FF2D9C" opacity="0.5"/>
+        <!-- Wave lines -->
+        <path d="M10,100 Q40,85 70,100 Q100,115 130,100 Q160,85 190,100 Q220,115 250,100 Q280,85 330,100" stroke="#00D4FF" stroke-width="1.5" fill="none" opacity="0.8"/>
+        <path d="M10,112 Q40,97 70,112 Q100,127 130,112 Q160,97 190,112 Q220,127 250,112 Q280,97 330,112" stroke="#00D4FF" stroke-width="1.5" fill="none" opacity="0.65"/>
+        <path d="M10,124 Q40,109 70,124 Q100,139 130,124 Q160,109 190,124 Q220,139 250,124 Q280,109 330,124" stroke="#00D4FF" stroke-width="1.2" fill="none" opacity="0.5"/>
+        <path d="M10,136 Q40,121 70,136 Q100,151 130,136 Q160,121 190,136 Q220,151 250,136 Q280,121 330,136" stroke="#00D4FF" stroke-width="1" fill="none" opacity="0.35"/>
+        <!-- Pixel sort glitch -->
+        <rect x="0" y="155" width="340" height="5" fill="#8B2FFF" opacity="0.9"/>
+        <rect x="0" y="160" width="200" height="4" fill="#FF2D9C" opacity="0.85"/>
+        <rect x="200" y="160" width="140" height="4" fill="#FFAD00" opacity="0.8"/>
+        <rect x="0" y="164" width="80" height="3" fill="#00D4FF" opacity="0.8"/>
+        <rect x="80" y="164" width="260" height="3" fill="#8B2FFF" opacity="0.75"/>
+        <rect x="0" y="167" width="340" height="5" fill="#FF2D9C" opacity="0.7"/>
+        <rect x="0" y="172" width="120" height="4" fill="#FFAD00" opacity="0.75"/>
+        <rect x="120" y="172" width="80" height="4" fill="#00D4FF" opacity="0.7"/>
+        <rect x="200" y="172" width="140" height="4" fill="#8B2FFF" opacity="0.7"/>
+        <rect x="0" y="176" width="340" height="44" fill="#1a1a1a" opacity="0.6"/>
+        <!-- VHS scan lines -->
+        <rect x="0" y="176" width="340" height="1" fill="#fff" opacity="0.06"/>
+        <rect x="0" y="178" width="340" height="1" fill="#fff" opacity="0.06"/>
+        <rect x="0" y="180" width="340" height="1" fill="#fff" opacity="0.06"/>
+        <rect x="0" y="182" width="340" height="1" fill="#fff" opacity="0.06"/>
+        <rect x="0" y="184" width="340" height="1" fill="#fff" opacity="0.06"/>
+        <text x="16" y="210" font-family="Courier New,monospace" font-size="8" fill="#fff" opacity="0.3" letter-spacing="0.1em">ASCII · HALFTONE · GLITCH · VHS · +11</text>
+      </svg>
+    </div>
+    <div class="card-body">
+      <div class="card-tag">Herramienta</div>
+      <div class="card-title">Efectos de imagen</div>
+      <div class="card-desc">15 efectos visuales: ASCII, halftone, dithering, pixel sort, VHS, Voronoi y más. Sube imagen, vídeo o usa la webcam.</div>
+      <div class="card-footer">
+        <div class="card-chips">
+          <span class="chip">Imagen</span>
+          <span class="chip">Vídeo</span>
+          <span class="chip">Webcam</span>
+        </div>
+        <div class="arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </a>
+
   <!-- LAYOUT DE FOTOS -->
   <a class="card" href="layout.html">
     <div class="card-preview" style="background:#EAE5DD">
@@ -512,7 +721,7 @@ footer {
 
 <footer>
   <span class="footer-note">localhost · herramientas de diseño</span>
-  <span class="footer-count">4 herramientas</span>
+  <span class="footer-count">6 herramientas</span>
 </footer>
 
 </body>

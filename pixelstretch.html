@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Stretch</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f2efe9; --panel-bg: #ffffff; --border: #e4e0d8;
+  --border-light: #ede9e2; --text: #1a1a1a; --text-2: #555;
+  --text-3: #999; --accent: #1a1a1a; --accent-inv: #ffffff;
+  --card-bg: #faf8f5; --input-bg: #f5f2ed; --hover-bg: #f0ece5;
+  --radius: 10px; --radius-sm: 7px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 13px; display: flex; flex-direction: column; }
+
+.app-header { height: 52px; background: var(--panel-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; flex-shrink: 0; }
+.back-link { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-2); text-decoration: none; padding: 6px 10px; border-radius: var(--radius-sm); transition: background .12s, color .12s; }
+.back-link:hover { background: #f5f2ed; color: var(--text); }
+.header-title { font-size: 14px; font-weight: 600; letter-spacing: -.2px; }
+
+.app { display: flex; flex: 1; overflow: hidden; }
+
+/* PANEL */
+.panel { width: 296px; flex-shrink: 0; background: var(--panel-bg); border-right: 1px solid var(--border); overflow-y: auto; padding: 20px 14px; display: flex; flex-direction: column; gap: 10px; }
+.panel-header { margin-bottom: 4px; }
+.panel-header h1 { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+.panel-header p { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+/* CARDS */
+.card { background: var(--card-bg); border: 1px solid var(--border-light); border-radius: var(--radius); padding: 13px; }
+.stitle { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
+
+/* UPLOAD */
+.upload-area { border: 1.5px dashed var(--border); border-radius: var(--radius-sm); padding: 18px 12px; text-align: center; cursor: pointer; color: var(--text-3); font-size: 12px; background: #fff; transition: border-color .15s, background .15s; }
+.upload-area:hover { border-color: #888; background: var(--hover-bg); }
+.upload-area.has-img { border-style: solid; border-color: var(--border); padding: 10px 12px; }
+.upload-icon { width: 32px; height: 32px; background: var(--input-bg); border-radius: 7px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+.upload-icon svg { opacity: .5; }
+.upload-hint { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+.img-thumb { width: 100%; height: 68px; object-fit: cover; border-radius: 5px; display: block; }
+.img-thumb.contain { object-fit: contain; background: #eee; }
+.img-name { font-size: 11px; color: var(--text-2); margin-top: 6px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+input[type=file] { display: none; }
+
+/* CONTROLS */
+.ctrl { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; }
+.ctrl:last-child { margin-bottom: 0; }
+.ctrl label { font-size: 11px; color: var(--text-2); display: flex; justify-content: space-between; }
+.ctrl label b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+
+/* ANGLE PRESETS */
+.angle-presets { display: flex; gap: 4px; margin-top: 6px; }
+.ap { font-size: 10px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; background: #fff; color: var(--text-2); transition: all .12s; white-space: nowrap; flex: 1; text-align: center; }
+.ap:hover { border-color: #aaa; }
+.ap.on { background: var(--accent); color: var(--accent-inv); border-color: var(--accent); }
+
+/* SIZE GRID */
+.size-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px; }
+.sbtn { font-size: 10px; padding: 6px 5px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; background: #fff; color: var(--text-2); text-align: center; line-height: 1.4; transition: all .12s; }
+.sbtn:hover { border-color: #aaa; }
+.sbtn.on { background: var(--accent); color: var(--accent-inv); border-color: var(--accent); }
+.sbtn span { display: block; font-size: 9px; opacity: .65; margin-top: 1px; }
+.crow { display: flex; gap: 5px; align-items: center; }
+.crow input[type=number] { width: 64px; padding: 6px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; text-align: center; color: var(--text); outline: none; }
+.crow input[type=number]:focus { border-color: #888; }
+.crow span { font-size: 12px; color: var(--text-3); }
+.diml { font-size: 11px; color: var(--text-3); text-align: center; margin-top: 7px; }
+
+/* TOGGLE */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.toggle-label { font-size: 11px; color: var(--text-2); }
+.toggle { position: relative; width: 30px; height: 17px; cursor: pointer; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: #ddd; border-radius: 10px; transition: background .15s; }
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle-thumb { position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; background: #fff; border-radius: 50%; transition: left .15s; pointer-events: none; }
+.toggle input:checked ~ .toggle-thumb { left: 15px; }
+
+/* BUTTONS */
+.bp { background: var(--accent); color: var(--accent-inv); border: none; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity .15s; }
+.bp:hover { opacity: .85; }
+.bp:disabled { opacity: .35; cursor: not-allowed; }
+.bs { background: #fff; color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 14px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .12s, border-color .12s; }
+.bs:hover { background: var(--hover-bg); border-color: #bbb; }
+.btn-row { display: flex; gap: 6px; }
+.rm-btn { width: 100%; padding: 7px; font-size: 11px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-2); cursor: pointer; margin-top: 10px; transition: background .12s, border-color .12s; }
+.rm-btn:hover { background: #fee8e8; border-color: #f5c0c0; color: #c00; }
+
+/* STATUS */
+.status { font-size: 11px; color: var(--text-3); text-align: center; min-height: 16px; margin-top: 7px; }
+
+/* PREVIEW */
+.preview-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 28px; overflow: auto; }
+.canvas-wrap { background: #ede8df; border-radius: var(--radius); padding: 14px; box-shadow: 0 6px 32px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06); }
+#preview { display: block; border-radius: 5px; max-width: 100%; max-height: 70vh; }
+#preview.draggable { cursor: grab; }
+#preview.dragging { cursor: grabbing; }
+.preview-hint { font-size: 11px; color: var(--text-3); text-align: center; }
+.empty-placeholder { width: 520px; height: 340px; background: #ede8df; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-3); font-size: 13px; }
+</style>
+<link rel="stylesheet" href="studio.css">
+</head>
+<body>
+
+<header class="app-header">
+  <a href="index.html" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Herramientas
+  </a>
+  <span class="header-title">Pixel Stretch</span>
+  <div style="width:100px"></div>
+</header>
+
+<div class="app">
+  <div class="panel">
+    <div class="sheet-handle"><div class="sh-grip"></div><span class="sh-label">Controles</span><svg class="sh-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></div>
+
+    <div class="panel-header">
+      <h1>Pixel Stretch</h1>
+      <p>Efecto de bandas de píxeles sobre imagen</p>
+    </div>
+
+    <!-- IMAGEN DE FONDO -->
+    <div class="card">
+      <div class="stitle">Imagen de fondo</div>
+      <div class="upload-area" id="dz-bg">
+        <div class="upload-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+        </div>
+        Clic o arrastra la imagen
+        <div class="upload-hint">PNG, JPG, WEBP</div>
+      </div>
+      <input type="file" id="fi-bg" accept="image/*">
+    </div>
+
+    <!-- SUJETO -->
+    <div class="card">
+      <div class="stitle">Sujeto <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">— opcional</span></div>
+      <div class="upload-area" id="dz-sub">
+        <div class="upload-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+        </div>
+        Clic o arrastra el sujeto
+        <div class="upload-hint">PNG con fondo transparente</div>
+      </div>
+      <input type="file" id="fi-sub" accept="image/png,image/webp">
+    </div>
+
+    <!-- LIENZO -->
+    <div class="card">
+      <div class="stitle">Tamaño de lienzo</div>
+      <div class="size-grid" id="sizerow">
+        <div class="sbtn on" data-w="0" data-h="0">Original<span>mismo que imagen</span></div>
+        <div class="sbtn" data-w="1080" data-h="1080">Instagram<span>1080 × 1080</span></div>
+        <div class="sbtn" data-w="1080" data-h="1350">Portrait<span>1080 × 1350</span></div>
+        <div class="sbtn" data-w="1080" data-h="1920">Stories<span>1080 × 1920</span></div>
+        <div class="sbtn" data-w="1200" data-h="627">LinkedIn<span>1200 × 627</span></div>
+        <div class="sbtn" data-w="1920" data-h="1080">Web 16:9<span>1920 × 1080</span></div>
+        <div class="sbtn" data-w="2480" data-h="3508">A4 300dpi<span>2480 × 3508</span></div>
+        <div class="sbtn" data-w="3508" data-h="2480">A4 horiz.<span>3508 × 2480</span></div>
+      </div>
+      <div class="crow">
+        <input type="number" id="cw" placeholder="Ancho" min="100" max="8000">
+        <span>×</span>
+        <input type="number" id="ch" placeholder="Alto" min="100" max="8000">
+        <button class="ap" id="btncustom" style="flex:none;padding:5px 10px">OK</button>
+      </div>
+      <div class="diml" id="dimlabel">Usará las dimensiones originales de la imagen</div>
+    </div>
+
+    <!-- EFECTO -->
+    <div class="card">
+      <div class="stitle">Efecto</div>
+      <div class="ctrl">
+        <label>Grosor de banda <b id="v-band">3 px</b></label>
+        <input type="range" id="band" min="1" max="40" step="1" value="3">
+      </div>
+      <div class="ctrl">
+        <label>Línea de muestra <b id="v-col">50%</b></label>
+        <input type="range" id="col" min="0" max="100" step="1" value="50">
+      </div>
+      <div class="ctrl" style="margin-bottom:0">
+        <label>Ángulo de bandas <b id="v-angle">0°</b></label>
+        <input type="range" id="angle" min="0" max="179" step="1" value="0">
+        <div class="angle-presets">
+          <div class="ap on" data-a="0">― 0°</div>
+          <div class="ap" data-a="45">⟋ 45°</div>
+          <div class="ap" data-a="90">| 90°</div>
+          <div class="ap" data-a="135">⟍ 135°</div>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Mostrar línea de muestra</span>
+        <label class="toggle">
+          <input type="checkbox" id="show-line" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- SUJETO CONTROLS -->
+    <div class="card" id="sub-controls" style="display:none">
+      <div class="stitle">Posición del sujeto</div>
+      <div class="ctrl">
+        <label>Tamaño <b id="v-scale">40%</b></label>
+        <input type="range" id="sub-scale" min="5" max="130" step="1" value="40">
+      </div>
+      <div class="ctrl">
+        <label>Posición X <b id="v-posx">50%</b></label>
+        <input type="range" id="sub-posx" min="0" max="100" step="1" value="50">
+      </div>
+      <div class="ctrl">
+        <label>Posición Y <b id="v-posy">60%</b></label>
+        <input type="range" id="sub-posy" min="0" max="100" step="1" value="60">
+      </div>
+      <div class="ctrl">
+        <label>Opacidad <b id="v-opacity">100%</b></label>
+        <input type="range" id="sub-opacity" min="10" max="100" step="1" value="100">
+      </div>
+      <p style="font-size:11px;color:var(--text-3);margin-top:6px;line-height:1.5">También puedes arrastrar el sujeto en la vista previa.</p>
+      <button class="rm-btn" id="btn-remove-sub">Quitar sujeto</button>
+    </div>
+
+    <!-- EXPORTAR -->
+    <div class="card">
+      <div class="stitle">Exportar</div>
+      <div class="btn-row">
+        <button class="bp" id="bdl" disabled style="flex:1">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Descargar PNG
+        </button>
+        <button class="bs" id="brandom" title="Aleatorizar parámetros" style="width:auto;padding:9px 13px">⚄</button>
+      </div>
+      <p class="status" id="status"></p>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-col">
+    <div id="empty-state" class="empty-placeholder">Sube una imagen para comenzar</div>
+    <div class="canvas-wrap" id="canvas-wrap" style="display:none">
+      <canvas id="preview"></canvas>
+    </div>
+    <p class="preview-hint" id="preview-hint" style="display:none">Vista previa · la descarga usa el tamaño de lienzo seleccionado</p>
+  </div>
+</div>
+
+<script>
+const S = {
+  bgImg: null, subImg: null,
+  bandH: 3, sampleCol: 0.5, angle: 0,
+  subX: 0.5, subY: 0.6, subW: 0.40, subOpacity: 1.0,
+  showLine: true,
+  exportW: 0, exportH: 0,   // 0 = same as source image
+};
+
+const PREVIEW_MAX = 600;
+
+function setStatus(t) { document.getElementById('status').textContent = t; }
+
+function targetDims() {
+  const W = S.exportW || (S.bgImg ? S.bgImg.width  : PREVIEW_MAX);
+  const H = S.exportH || (S.bgImg ? S.bgImg.height : PREVIEW_MAX);
+  return { W, H };
+}
+
+function previewSize() {
+  const { W, H } = targetDims();
+  const r = W / H;
+  return r >= 1
+    ? { w: PREVIEW_MAX, h: Math.round(PREVIEW_MAX / r) }
+    : { w: Math.round(PREVIEW_MAX * r), h: PREVIEW_MAX };
+}
+
+function setExport(w, h) {
+  S.exportW = w; S.exportH = h;
+  document.getElementById('dimlabel').textContent = w
+    ? `Exportará a ${w} × ${h} px`
+    : 'Usará las dimensiones originales de la imagen';
+}
+
+// ── Pixel stretch (arbitrary angle) ──────────────────────────
+function buildStretch(img, W, H) {
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = H;
+  const tc = tmp.getContext('2d');
+  tc.drawImage(img, 0, 0, W, H);
+  const sd = tc.getImageData(0, 0, W, H).data;
+
+  const out = document.createElement('canvas');
+  out.width = W; out.height = H;
+  const oc = out.getContext('2d');
+  const id = oc.createImageData(W, H);
+  const od = id.data;
+
+  const α = S.angle * Math.PI / 180;
+  const cosA = Math.cos(α), sinA = Math.sin(α);
+  const perpOffset = (S.sampleCol - 0.5) * Math.max(W, H);
+  const cx = W / 2, cy = H / 2;
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const d = -(x - cx) * sinA + (y - cy) * cosA;
+      const band = Math.floor(d / S.bandH);
+      const c = band * S.bandH + Math.floor(S.bandH / 2);
+      let sx = cx - c * sinA + perpOffset * cosA;
+      let sy = cy + c * cosA + perpOffset * sinA;
+      sx = Math.max(0, Math.min(W - 1, Math.round(sx)));
+      sy = Math.max(0, Math.min(H - 1, Math.round(sy)));
+      const si = (sy * W + sx) * 4;
+      const di = (y * W + x) * 4;
+      od[di] = sd[si]; od[di+1] = sd[si+1]; od[di+2] = sd[si+2]; od[di+3] = 255;
+    }
+  }
+
+  oc.putImageData(id, 0, 0);
+  return out;
+}
+
+function compositeSubject(ctx, W, H) {
+  if (!S.subImg) return;
+  const sw = W * S.subW;
+  const sh = sw * (S.subImg.height / S.subImg.width);
+  ctx.globalAlpha = S.subOpacity;
+  ctx.drawImage(S.subImg, S.subX * W - sw / 2, S.subY * H - sh / 2, sw, sh);
+  ctx.globalAlpha = 1;
+}
+
+function drawIndicator(ctx, W, H) {
+  if (!S.showLine) return;
+  const α = S.angle * Math.PI / 180;
+  const cosA = Math.cos(α), sinA = Math.sin(α);
+  const perpOffset = (S.sampleCol - 0.5) * Math.max(W, H);
+  const lx = W / 2 + perpOffset * cosA;
+  const ly = H / 2 + perpOffset * sinA;
+  const len = Math.max(W, H) * 1.5;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(lx - len * cosA, ly - len * sinA);
+  ctx.lineTo(lx + len * cosA, ly + len * sinA);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ── Render ────────────────────────────────────────────────────
+let _rt = null;
+function scheduleRender() { clearTimeout(_rt); _rt = setTimeout(doRender, 80); }
+
+function doRender() {
+  if (!S.bgImg) return;
+  const { w, h } = previewSize();
+  const cv = document.getElementById('preview');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.drawImage(buildStretch(S.bgImg, w, h), 0, 0);
+  compositeSubject(ctx, w, h);
+  drawIndicator(ctx, w, h);
+  document.getElementById('bdl').disabled = false;
+}
+
+// ── Export ────────────────────────────────────────────────────
+function doExport() {
+  if (!S.bgImg) return;
+  const { W, H } = targetDims();
+  setStatus('Renderizando ' + W + '×' + H + '…');
+  document.getElementById('bdl').disabled = true;
+  setTimeout(() => {
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    ctx.drawImage(buildStretch(S.bgImg, W, H), 0, 0);
+    compositeSubject(ctx, W, H);
+    cv.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'pixel-stretch.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      setStatus('✓ Descargado · ' + W + '×' + H + ' px');
+      setTimeout(() => setStatus(''), 3000);
+      document.getElementById('bdl').disabled = false;
+    }, 'image/png');
+  }, 30);
+}
+
+// ── Random ────────────────────────────────────────────────────
+function randomize() {
+  S.bandH   = 1 + Math.floor(Math.random() * 25);
+  S.sampleCol = Math.random();
+  S.angle   = Math.floor(Math.random() * 180);
+
+  document.getElementById('band').value  = S.bandH;
+  document.getElementById('v-band').textContent = S.bandH + ' px';
+  document.getElementById('col').value   = Math.round(S.sampleCol * 100);
+  document.getElementById('v-col').textContent  = Math.round(S.sampleCol * 100) + '%';
+  document.getElementById('angle').value = S.angle;
+  document.getElementById('v-angle').textContent = S.angle + '°';
+
+  document.querySelectorAll('.ap').forEach(b =>
+    b.classList.toggle('on', Math.abs(parseInt(b.dataset.a) - S.angle) < 2)
+  );
+  scheduleRender();
+}
+
+// ── Image loading ─────────────────────────────────────────────
+function loadBg(f) {
+  if (!f || !f.type.startsWith('image/')) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    S.bgImg = img;
+    URL.revokeObjectURL(url);
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('canvas-wrap').style.display = '';
+    document.getElementById('preview-hint').style.display = '';
+    const dz = document.getElementById('dz-bg');
+    dz.classList.add('has-img');
+    dz.innerHTML = `<img class="img-thumb" src="${img.src}"><div class="img-name">${f.name}</div>`;
+    scheduleRender();
+  };
+  img.src = url;
+}
+
+function loadSubject(f) {
+  if (!f || !f.type.startsWith('image/')) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = () => {
+    S.subImg = img;
+    URL.revokeObjectURL(url);
+    document.getElementById('sub-controls').style.display = '';
+    document.getElementById('preview').classList.add('draggable');
+    const dz = document.getElementById('dz-sub');
+    dz.classList.add('has-img');
+    dz.innerHTML = `<img class="img-thumb contain" src="${img.src}"><div class="img-name">${f.name}</div>`;
+    scheduleRender();
+  };
+  img.src = url;
+}
+
+// ── Subject drag ──────────────────────────────────────────────
+let dragging = false, offX = 0, offY = 0;
+
+document.getElementById('preview').addEventListener('mousedown', e => {
+  if (!S.subImg) return;
+  const cv = document.getElementById('preview');
+  const rect = cv.getBoundingClientRect();
+  offX = (e.clientX - rect.left) / rect.width  - S.subX;
+  offY = (e.clientY - rect.top)  / rect.height - S.subY;
+  dragging = true;
+  cv.classList.add('dragging');
+  e.preventDefault();
+});
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const cv = document.getElementById('preview');
+  const rect = cv.getBoundingClientRect();
+  S.subX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width  - offX));
+  S.subY = Math.max(0, Math.min(1, (e.clientY - rect.top)  / rect.height - offY));
+  document.getElementById('sub-posx').value = Math.round(S.subX * 100);
+  document.getElementById('v-posx').textContent = Math.round(S.subX * 100) + '%';
+  document.getElementById('sub-posy').value = Math.round(S.subY * 100);
+  document.getElementById('v-posy').textContent = Math.round(S.subY * 100) + '%';
+  scheduleRender();
+});
+window.addEventListener('mouseup', () => {
+  if (dragging) { dragging = false; document.getElementById('preview').classList.remove('dragging'); }
+});
+
+// ── Upload zones ──────────────────────────────────────────────
+function setupUpload(dzId, inputId, handler) {
+  const dz = document.getElementById(dzId), fi = document.getElementById(inputId);
+  dz.addEventListener('click', () => fi.click());
+  fi.addEventListener('change', e => { handler(e.target.files[0]); fi.value = ''; });
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.style.borderColor = '#555'; });
+  dz.addEventListener('dragleave', ()  => dz.style.borderColor = '');
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor = ''; handler(e.dataTransfer.files[0]); });
+}
+setupUpload('dz-bg',  'fi-bg',  loadBg);
+setupUpload('dz-sub', 'fi-sub', loadSubject);
+
+// ── Size grid ─────────────────────────────────────────────────
+document.getElementById('sizerow').querySelectorAll('.sbtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.sbtn').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  setExport(parseInt(b.dataset.w), parseInt(b.dataset.h));
+  scheduleRender();
+}));
+document.getElementById('btncustom').addEventListener('click', () => {
+  const w = parseInt(document.getElementById('cw').value);
+  const h = parseInt(document.getElementById('ch').value);
+  if (w >= 100 && w <= 8000 && h >= 100 && h <= 8000) {
+    document.querySelectorAll('.sbtn').forEach(x => x.classList.remove('on'));
+    setExport(w, h);
+    scheduleRender();
+  }
+});
+
+// ── Effect controls ───────────────────────────────────────────
+document.getElementById('band').addEventListener('input', function() {
+  S.bandH = parseInt(this.value);
+  document.getElementById('v-band').textContent = this.value + ' px';
+  scheduleRender();
+});
+document.getElementById('col').addEventListener('input', function() {
+  S.sampleCol = parseInt(this.value) / 100;
+  document.getElementById('v-col').textContent = this.value + '%';
+  scheduleRender();
+});
+document.getElementById('angle').addEventListener('input', function() {
+  S.angle = parseInt(this.value);
+  document.getElementById('v-angle').textContent = this.value + '°';
+  document.querySelectorAll('.ap').forEach(b =>
+    b.classList.toggle('on', Math.abs(parseInt(b.dataset.a) - S.angle) < 2)
+  );
+  scheduleRender();
+});
+document.querySelectorAll('.ap').forEach(b => b.addEventListener('click', () => {
+  S.angle = parseInt(b.dataset.a);
+  document.getElementById('angle').value = S.angle;
+  document.getElementById('v-angle').textContent = S.angle + '°';
+  document.querySelectorAll('.ap').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  scheduleRender();
+}));
+document.getElementById('show-line').addEventListener('change', function() {
+  S.showLine = this.checked; scheduleRender();
+});
+
+// ── Subject controls ──────────────────────────────────────────
+document.getElementById('sub-scale').addEventListener('input', function() {
+  S.subW = parseInt(this.value) / 100;
+  document.getElementById('v-scale').textContent = this.value + '%';
+  scheduleRender();
+});
+document.getElementById('sub-posx').addEventListener('input', function() {
+  S.subX = parseInt(this.value) / 100;
+  document.getElementById('v-posx').textContent = this.value + '%';
+  scheduleRender();
+});
+document.getElementById('sub-posy').addEventListener('input', function() {
+  S.subY = parseInt(this.value) / 100;
+  document.getElementById('v-posy').textContent = this.value + '%';
+  scheduleRender();
+});
+document.getElementById('sub-opacity').addEventListener('input', function() {
+  S.subOpacity = parseInt(this.value) / 100;
+  document.getElementById('v-opacity').textContent = this.value + '%';
+  scheduleRender();
+});
+document.getElementById('btn-remove-sub').addEventListener('click', () => {
+  S.subImg = null;
+  document.getElementById('sub-controls').style.display = 'none';
+  const cv = document.getElementById('preview');
+  cv.classList.remove('draggable', 'dragging');
+  const dz = document.getElementById('dz-sub');
+  dz.classList.remove('has-img');
+  dz.innerHTML = `<div class="upload-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg></div>Clic o arrastra el sujeto<div class="upload-hint">PNG con fondo transparente</div>`;
+  scheduleRender();
+});
+
+document.getElementById('bdl').addEventListener('click', doExport);
+document.getElementById('brandom').addEventListener('click', randomize);
+</script>
+<script src="studio.js"></script>
+</body>
+</html>

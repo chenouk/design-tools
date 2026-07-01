@@ -379,6 +379,7 @@ canvas {
   text-align: center;
 }
 </style>
+<link rel="stylesheet" href="studio.css">
 </head>
 <body>
 <!-- HEADER -->
@@ -395,6 +396,7 @@ canvas {
 
 <div class="app">
   <div class="panel">
+    <div class="sheet-handle"><div class="sh-grip"></div><span class="sh-label">Controles</span><svg class="sh-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></div>
     <div class="panel-header">
       <h1>Risograph</h1>
       <p>Efecto risográfico sobre imagen</p>
@@ -688,7 +690,8 @@ function randomizeAll() {
     paper: randomFrom(['cream','white','newsprint','kraft']),
     screen: randomFrom(['dot','line','cross','none']),
   });
-  setStatus('Parámetros aleatorizados — pulsa Aplicar para ver el resultado.');
+  setStatus('Parámetros aleatorizados…');
+  scheduleApply();
 }
 
 // ── Core riso renderer ────────────────────────────────────────
@@ -843,6 +846,14 @@ function loadImage(f) {
   }; img.src=url;
 }
 
+// ── Debounced auto-apply ──────────────────────────────────────
+let _applyTimer = null;
+function scheduleApply() {
+  if (!srcImg) return;
+  clearTimeout(_applyTimer);
+  _applyTimer = setTimeout(applyPreview, 600);
+}
+
 // ── Event listeners ───────────────────────────────────────────
 document.getElementById('dz').onclick=()=>document.getElementById('fi').click();
 document.getElementById('fi').addEventListener('change',e=>{ loadImage(e.target.files[0]); document.getElementById('fi').value=''; });
@@ -853,19 +864,20 @@ dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';loadIm
 
 ['1','2','3'].forEach(n=>{
   const p=document.getElementById('c'+n),s=document.getElementById('sw'+n),l=document.getElementById('cl'+n);
-  p.addEventListener('input',()=>{s.style.background=p.value;l.textContent=p.value.toUpperCase();});
+  p.addEventListener('input',()=>{s.style.background=p.value;l.textContent=p.value.toUpperCase();scheduleApply();});
 });
 document.getElementById('ninks').addEventListener('input',()=>{
   const n=Math.round(gp('ninks'));
   document.getElementById('vninks').textContent=n;
   document.getElementById('row2').style.display=n>=2?'':'none';
   document.getElementById('row3').style.display=n>=3?'':'none';
+  scheduleApply();
 });
 [{id:'grain',out:'vgrain',fmt:v=>Math.round(v)+'%'},{id:'regx',out:'vregx',fmt:v=>Math.round(v)+'px'},{id:'regy',out:'vregy',fmt:v=>Math.round(v)+'px'},{id:'cont',out:'vcont',fmt:v=>(v/100).toFixed(1)+'×'},{id:'sat',out:'vsat',fmt:v=>Math.round(v)+'%'}].forEach(s=>{
-  document.getElementById(s.id).addEventListener('input',()=>document.getElementById(s.out).textContent=s.fmt(document.getElementById(s.id).value));
+  document.getElementById(s.id).addEventListener('input',()=>{document.getElementById(s.out).textContent=s.fmt(document.getElementById(s.id).value);scheduleApply();});
 });
-document.getElementById('paperrow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{document.querySelectorAll('#paperrow .mb').forEach(x=>x.classList.remove('on'));b.classList.add('on');paper=b.dataset.paper;});
-document.getElementById('screenrow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{document.querySelectorAll('#screenrow .mb').forEach(x=>x.classList.remove('on'));b.classList.add('on');rscreen=b.dataset.sc;});
+document.getElementById('paperrow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{document.querySelectorAll('#paperrow .mb').forEach(x=>x.classList.remove('on'));b.classList.add('on');paper=b.dataset.paper;scheduleApply();});
+document.getElementById('screenrow').querySelectorAll('.mb').forEach(b=>b.onclick=()=>{document.querySelectorAll('#screenrow .mb').forEach(x=>x.classList.remove('on'));b.classList.add('on');rscreen=b.dataset.sc;scheduleApply();});
 document.getElementById('inkpresets').querySelectorAll('.ink-preset').forEach(p=>p.onclick=()=>{
   const n=parseInt(p.dataset.n)||2;
   document.getElementById('ninks').value=n;
@@ -873,6 +885,7 @@ document.getElementById('inkpresets').querySelectorAll('.ink-preset').forEach(p=
   document.getElementById('row2').style.display=n>=2?'':'none';
   document.getElementById('row3').style.display=n>=3?'':'none';
   ['1','2','3'].forEach((_,i)=>{const v=p.dataset['c'+(i+1)];if(v){document.getElementById('c'+(i+1)).value=v;document.getElementById('sw'+(i+1)).style.background=v;document.getElementById('cl'+(i+1)).textContent=v.toUpperCase();}});
+  scheduleApply();
 });
 document.getElementById('sizerow').querySelectorAll('.sbtn').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.sbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
@@ -889,5 +902,6 @@ document.getElementById('brandom').onclick=randomizeAll;
 // Init
 renderPresetList();
 </script>
+<script src="studio.js"></script>
 </body>
 </html>

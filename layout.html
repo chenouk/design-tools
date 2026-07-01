@@ -208,6 +208,7 @@ input[type=text]:focus, select:focus, textarea:focus { border-color: var(--borde
 /* scrollbar panel */
 .panel::-webkit-scrollbar-track { background: transparent; }
 </style>
+<link rel="stylesheet" href="studio.css">
 </head>
 <body>
 
@@ -227,6 +228,8 @@ input[type=text]:focus, select:focus, textarea:focus { border-color: var(--borde
 
   <!-- ══ PANEL ══════════════════════════════════════════════ -->
   <div class="panel">
+
+    <div class="sheet-handle"><div class="sh-grip"></div><span class="sh-label">Controles</span><svg class="sh-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></div>
 
     <!-- Upload -->
     <div class="card">
@@ -965,5 +968,6 @@ document.getElementById('btnDownload').onclick = () => {
 // ── Initial render (empty canvas) ──
 render();
 </script>
+<script src="studio.js"></script>
 </body>
 </html>

@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Efectos de imagen</title>
+<link rel="stylesheet" href="studio.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 11px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background 0.12s;
+}
+.header-title { font-size: 15px; font-weight: 700; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* ── LAYOUT ── */
+.app {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── CANVAS AREA ── */
+.canvas-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+
+#drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 2px dashed var(--border-2);
+  border-radius: var(--radius);
+  padding: 48px 40px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+}
+#drop-zone:hover, #drop-zone.drag-over {
+  border-color: var(--text);
+  background: var(--hover-bg);
+}
+#drop-zone svg { opacity: 0.4; }
+#drop-zone p { font-size: 14px; color: var(--text-2); }
+#drop-zone small { font-size: 11px; color: var(--text-3); font-family: var(--font-mono); }
+#file-input { display: none; }
+
+#canvas-wrap {
+  display: none;
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+}
+#output-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 120px);
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+#src-canvas { display: none; }
+
+/* ── PANEL ── */
+.panel {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-scroll {
+  overflow-y: auto;
+  flex: 1;
+  padding: 16px;
+}
+
+/* ── EFFECT GRID ── */
+.stitle { margin-bottom: 10px; }
+
+.effect-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.effect-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s;
+  line-height: 1.3;
+}
+.effect-btn:hover { border-color: var(--border-2); color: var(--text); background: var(--hover-bg); }
+.effect-btn.active { background: var(--text); color: var(--accent-inv); border-color: var(--text); }
+
+/* ── CONTROLS ── */
+.ctrl-section { margin-bottom: 20px; }
+.ctrl-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.ctrl-row label {
+  font-size: 11px;
+  color: var(--text-2);
+  display: flex;
+  justify-content: space-between;
+}
+.ctrl-row label b {
+  font-family: var(--font-mono);
+  color: var(--text);
+  font-size: 10px;
+}
+
+/* ── PANEL FOOTER ── */
+.panel-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-row { display: flex; gap: 8px; }
+button.bp {
+  flex: 1;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+}
+button.bs {
+  flex: 1;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+}
+button.bs.full { flex: none; width: 100%; }
+
+/* webcam badge */
+#webcam-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  background: #d4f5e0;
+  color: #187840;
+  border-radius: 20px;
+  display: none;
+}
+#webcam-badge.on { display: inline-flex; }
+
+@media (max-width: 900px) {
+  .app { flex-direction: column; }
+  .panel { width: 100%; height: auto; border-left: none; border-top: 1px solid var(--border); }
+  .panel-scroll { max-height: 40vh; }
+  body { height: auto; overflow: auto; }
+  .canvas-area { min-height: 50vw; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a class="back-link" href="index.html">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M7.5 2.5L3.5 6l4 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Volver
+  </a>
+  <span class="header-title">Efectos de imagen</span>
+  <div class="header-right">
+    <span id="webcam-badge" class="on" style="display:none">● Webcam</span>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- CANVAS -->
+  <div class="canvas-area" id="canvas-area">
+    <div id="drop-zone">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="8" width="32" height="24" rx="3" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="14" cy="17" r="3" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M4 26l9-7 6 5 5-4 12 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      <p>Suelta una imagen o vídeo aquí</p>
+      <small>PNG · JPG · GIF · MP4 · WebM</small>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="output-canvas"></canvas>
+    </div>
+    <canvas id="src-canvas"></canvas>
+    <video id="src-video" style="display:none" playsinline muted></video>
+  </div>
+
+  <!-- PANEL -->
+  <aside class="panel">
+    <div class="panel-scroll">
+
+      <div class="stitle">Efecto</div>
+      <div class="effect-grid">
+        <button class="effect-btn active" data-effect="ascii">ASCII</button>
+        <button class="effect-btn" data-effect="dithering">Dithering</button>
+        <button class="effect-btn" data-effect="halftone">Halftone</button>
+        <button class="effect-btn" data-effect="matrix">Matrix Rain</button>
+        <button class="effect-btn" data-effect="dots">Dots</button>
+        <button class="effect-btn" data-effect="contour">Contour</button>
+        <button class="effect-btn" data-effect="pixelsort">Pixel Sort</button>
+        <button class="effect-btn" data-effect="blockify">Blockify</button>
+        <button class="effect-btn" data-effect="threshold">Threshold</button>
+        <button class="effect-btn" data-effect="edges">Edge Detect</button>
+        <button class="effect-btn" data-effect="crosshatch">Crosshatch</button>
+        <button class="effect-btn" data-effect="wavelines">Wave Lines</button>
+        <button class="effect-btn" data-effect="noisefield">Noise Field</button>
+        <button class="effect-btn" data-effect="voronoi">Voronoi</button>
+        <button class="effect-btn" data-effect="vhs">VHS</button>
+      </div>
+
+      <!-- per-effect controls rendered here -->
+      <div id="effect-controls"></div>
+
+    </div>
+
+    <div class="panel-footer">
+      <div class="btn-row">
+        <button class="bs" id="btn-load" onclick="document.getElementById('file-input').click()">Cargar archivo</button>
+        <button class="bs" id="btn-webcam">Webcam</button>
+      </div>
+      <button class="bp full bs" id="btn-export" style="display:none" onclick="exportImage()">Exportar PNG</button>
+    </div>
+  </aside>
+
+</div>
+
+<input type="file" id="file-input" accept="image/*,video/*">
+
+<script>
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let currentEffect = 'ascii';
+let srcImage = null;      // ImageData or null
+let animFrame = null;
+let webcamStream = null;
+let webcamActive = false;
+let videoEl = document.getElementById('src-video');
+let srcCanvas = document.getElementById('src-canvas');
+let srcCtx = srcCanvas.getContext('2d');
+let outCanvas = document.getElementById('output-canvas');
+let outCtx = outCanvas.getContext('2d');
+
+// ──────────────────────────────────────────────
+// EFFECT DEFINITIONS  (controls + render fn)
+// ──────────────────────────────────────────────
+const EFFECTS = {
+
+  ascii: {
+    label: 'ASCII',
+    controls: [
+      { id:'scale', label:'Escala', min:4, max:24, step:1, value:10 },
+      { id:'invert', label:'Invertir', type:'toggle', value:false },
+      { id:'color', label:'Color', type:'toggle', value:false },
+      { id:'fgColor', label:'Color texto', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+    ],
+    render(src, out, ctx, p) {
+      const chars = ' .:-=+*#%@';
+      const size = p.scale|0;
+      ctx.fillStyle = p.bgColor;
+      ctx.fillRect(0, 0, out.width, out.height);
+      ctx.font = `${size}px monospace`;
+      ctx.textBaseline = 'top';
+      const tmpC = document.createElement('canvas');
+      const cols = Math.floor(out.width / (size * 0.6));
+      const rows = Math.floor(out.height / size);
+      tmpC.width = cols; tmpC.height = rows;
+      const t = tmpC.getContext('2d');
+      t.drawImage(src, 0, 0, cols, rows);
+      const d = t.getImageData(0, 0, cols, rows).data;
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const i = (y * cols + x) * 4;
+          let lum = (d[i]*0.299 + d[i+1]*0.587 + d[i+2]*0.114) / 255;
+          if (p.invert) lum = 1 - lum;
+          const ci = Math.floor(lum * (chars.length - 1));
+          if (p.color) {
+            ctx.fillStyle = `rgb(${d[i]},${d[i+1]},${d[i+2]})`;
+          } else {
+            ctx.fillStyle = p.fgColor;
+          }
+          ctx.fillText(chars[ci], x * size * 0.6, y * size);
+        }
+      }
+    }
+  },
+
+  dithering: {
+    label: 'Dithering',
+    controls: [
+      { id:'type', label:'Tipo', type:'select', options:['Floyd-Steinberg','Ordered 4x4','Ordered 8x8','Random'], value:'Floyd-Steinberg' },
+      { id:'colors', label:'Colores', min:2, max:8, step:1, value:2 },
+      { id:'scale', label:'Escala', min:1, max:4, step:1, value:1 },
+    ],
+    render(src, out, ctx, p) {
+      const sc = p.scale|0;
+      const w = Math.floor(out.width / sc), h = Math.floor(out.height / sc);
+      const tmp = document.createElement('canvas');
+      tmp.width = w; tmp.height = h;
+      const t = tmp.getContext('2d');
+      t.drawImage(src, 0, 0, w, h);
+      const id = t.getImageData(0, 0, w, h);
+      const d = id.data;
+      const levels = p.colors|0;
+      const step = 255 / (levels - 1);
+      const quant = v => Math.round(Math.round(v / step) * step);
+
+      if (p.type === 'Floyd-Steinberg') {
+        const buf = new Float32Array(w * h * 3);
+        for (let i = 0; i < w*h; i++) {
+          buf[i*3]   = d[i*4];
+          buf[i*3+1] = d[i*4+1];
+          buf[i*3+2] = d[i*4+2];
+        }
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const idx = y*w+x;
+            const or = buf[idx*3], og = buf[idx*3+1], ob = buf[idx*3+2];
+            const nr = quant(or), ng = quant(og), nb = quant(ob);
+            buf[idx*3] = nr; buf[idx*3+1] = ng; buf[idx*3+2] = nb;
+            const er = or-nr, eg = og-ng, eb = ob-nb;
+                for (const [dx,dy,w2] of [[1,0,7/16],[-1,1,3/16],[0,1,5/16],[1,1,1/16]]) {
+              const nx=x+dx, ny=y+dy;
+              if (nx>=0&&nx<w&&ny<h) {
+                const ni=(ny*w+nx)*3;
+                buf[ni]   = Math.max(0,Math.min(255,buf[ni]  +er*w2));
+                buf[ni+1] = Math.max(0,Math.min(255,buf[ni+1]+eg*w2));
+                buf[ni+2] = Math.max(0,Math.min(255,buf[ni+2]+eb*w2));
+              }
+            }
+          }
+        }
+        for (let i = 0; i < w*h; i++) {
+          d[i*4]=buf[i*3]; d[i*4+1]=buf[i*3+1]; d[i*4+2]=buf[i*3+2];
+        }
+      } else if (p.type.startsWith('Ordered')) {
+        const size = p.type.includes('8') ? 8 : 4;
+        const m4 = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+        const m8 = [ 0,32, 8,40, 2,34,10,42,48,16,56,24,50,18,58,26,
+                    12,44, 4,36,14,46, 6,38,60,28,52,20,62,30,54,22,
+                     3,35,11,43, 1,33, 9,41,51,19,59,27,49,17,57,25,
+                    15,47, 7,39,13,45, 5,37,63,31,55,23,61,29,53,21];
+        const mat = size === 4 ? m4 : m8;
+        const norm = 1 / (size * size);
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const mi = mat[(y%size)*size+(x%size)] * norm - 0.5;
+            const i = (y*w+x)*4;
+            d[i]   = quant(Math.max(0,Math.min(255, d[i]   + mi*255)));
+            d[i+1] = quant(Math.max(0,Math.min(255, d[i+1] + mi*255)));
+            d[i+2] = quant(Math.max(0,Math.min(255, d[i+2] + mi*255)));
+          }
+        }
+      } else {
+        for (let i = 0; i < w*h; i++) {
+          const noise = (Math.random()-0.5)*80;
+          d[i*4]   = quant(Math.max(0,Math.min(255,d[i*4]  +noise)));
+          d[i*4+1] = quant(Math.max(0,Math.min(255,d[i*4+1]+noise)));
+          d[i*4+2] = quant(Math.max(0,Math.min(255,d[i*4+2]+noise)));
+        }
+      }
+      t.putImageData(id, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(tmp, 0, 0, out.width, out.height);
+    }
+  },
+
+  halftone: {
+    label: 'Halftone',
+    controls: [
+      { id:'dotSize', label:'Tamaño máx', min:4, max:30, step:1, value:12 },
+      { id:'spacing', label:'Espaciado', min:6, max:40, step:1, value:14 },
+      { id:'angle', label:'Ángulo (°)', min:0, max:90, step:1, value:45 },
+      { id:'color', label:'Color punto', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+      { id:'cmyk', label:'Modo CMYK', type:'toggle', value:false },
+    ],
+    render(src, out, ctx, p) {
+      ctx.fillStyle = p.bgColor;
+      ctx.fillRect(0, 0, out.width, out.height);
+      const sp = p.spacing|0;
+      const maxR = (p.dotSize/2);
+      if (p.cmyk) {
+        const channels = [
+          { angle: 15, color: 'rgba(0,188,212,' },
+          { angle: 75, color: 'rgba(233,30,99,' },
+          { angle: 45, color: 'rgba(255,235,59,' },
+          { angle: 105, color: 'rgba(0,0,0,' },
+        ];
+        channels.forEach(ch => {
+          const a = ch.angle * Math.PI / 180;
+          const cos = Math.cos(a), sin = Math.sin(a);
+          const D = sp;
+          for (let gy = -out.height; gy < out.height*2; gy += D) {
+            for (let gx = -out.width; gx < out.width*2; gx += D) {
+              const px = gx*cos - gy*sin;
+              const py = gx*sin + gy*cos;
+              if (px < 0 || px >= out.width || py < 0 || py >= out.height) continue;
+              const col = sampleColor(src, px/out.width, py/out.height);
+              const lum = (col[0]*0.299+col[1]*0.587+col[2]*0.114)/255;
+              const r = maxR * (1 - lum);
+              if (r > 0.5) {
+                ctx.beginPath();
+                ctx.arc(px, py, r, 0, Math.PI*2);
+                ctx.fillStyle = ch.color + '0.85)';
+                ctx.fill();
+              }
+            }
+          }
+        });
+      } else {
+        const a = p.angle * Math.PI / 180;
+        const cos = Math.cos(a), sin = Math.sin(a);
+        for (let gy = -out.height; gy < out.height*2; gy += sp) {
+          for (let gx = -out.width; gx < out.width*2; gx += sp) {
+            const px = gx*cos - gy*sin;
+            const py = gx*sin + gy*cos;
+            if (px < 0 || px >= out.width || py < 0 || py >= out.height) continue;
+            const col = sampleColor(src, px/out.width, py/out.height);
+            const lum = (col[0]*0.299+col[1]*0.587+col[2]*0.114)/255;
+            const r = maxR * (1 - lum);
+            if (r > 0.5) {
+              ctx.beginPath();
+              ctx.arc(px, py, r, 0, Math.PI*2);
+              ctx.fillStyle = p.color;
+              ctx.fill();
+            }
+          }
+        }
+      }
+    }
+  },
+
+  matrix: {
+    label: 'Matrix Rain',
+    controls: [
+      { id:'speed', label:'Velocidad', min:1, max:10, step:1, value:4 },
+      { id:'fontSize', label:'Tamaño', min:8, max:24, step:1, value:14 },
+      { id:'color', label:'Color', type:'color', value:'#00ff41' },
+      { id:'bgOpacity', label:'Fade (estela)', min:1, max:30, step:1, value:8 },
+      { id:'useImage', label:'Usar imagen de fondo', type:'toggle', value:true },
+    ],
+    _drops: null,
+    _t: 0,
+    render(src, out, ctx, p) {
+      const fs = p.fontSize|0;
+      const cols = Math.floor(out.width / fs);
+      if (!this._drops || this._drops.length !== cols) {
+        this._drops = Array.from({length: cols}, () => Math.floor(Math.random()*out.height/fs));
+      }
+      // fade
+      ctx.fillStyle = `rgba(0,0,0,${p.bgOpacity/100})`;
+      ctx.fillRect(0, 0, out.width, out.height);
+      ctx.font = `${fs}px monospace`;
+      ctx.fillStyle = p.color;
+      const chars = 'ｦｧｨｩｪｫｬｭｮｯｰアイウエオカキクケコサシスセソタチツテトナニヌネノ01234567890';
+      for (let i = 0; i < cols; i++) {
+        const ch = chars[Math.floor(Math.random()*chars.length)];
+        ctx.fillText(ch, i*fs, this._drops[i]*fs);
+        if (this._drops[i]*fs > out.height && Math.random() > 0.975) this._drops[i] = 0;
+        this._drops[i]++;
+      }
+    },
+    isAnimated: true
+  },
+
+  dots: {
+    label: 'Dots',
+    controls: [
+      { id:'spacing', label:'Espaciado', min:4, max:30, step:1, value:10 },
+      { id:'minR', label:'Radio mínimo', min:0, max:10, step:0.5, value:0.5 },
+      { id:'maxR', label:'Radio máximo', min:1, max:20, step:0.5, value:6 },
+      { id:'useColor', label:'Color imagen', type:'toggle', value:true },
+      { id:'dotColor', label:'Color punto', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+    ],
+    render(src, out, ctx, p) {
+      ctx.fillStyle = p.bgColor;
+      ctx.fillRect(0, 0, out.width, out.height);
+      const sp = p.spacing|0;
+      for (let y = sp/2; y < out.height; y += sp) {
+        for (let x = sp/2; x < out.width; x += sp) {
+          const col = sampleColor(src, x/out.width, y/out.height);
+          const lum = (col[0]*0.299+col[1]*0.587+col[2]*0.114)/255;
+          const r = p.minR + (1-lum) * (p.maxR - p.minR);
+          ctx.beginPath();
+          ctx.arc(x, y, Math.max(0.1, r), 0, Math.PI*2);
+          ctx.fillStyle = p.useColor ? `rgb(${col[0]},${col[1]},${col[2]})` : p.dotColor;
+          ctx.fill();
+        }
+      }
+    }
+  },
+
+  contour: {
+    label: 'Contour',
+    controls: [
+      { id:'levels', label:'Niveles', min:2, max:20, step:1, value:8 },
+      { id:'lineWidth', label:'Grosor línea', min:0.5, max:5, step:0.5, value:1 },
+      { id:'color', label:'Color línea', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+      { id:'smooth', label:'Suavizado', min:0, max:5, step:1, value:1 },
+    ],
+    render(src, out, ctx, p) {
+      ctx.fillStyle = p.bgColor;
+      ctx.fillRect(0, 0, out.width, out.height);
+      const w = out.width, h = out.height;
+      const tmp = document.createElement('canvas');
+      tmp.width = w; tmp.height = h;
+      const t = tmp.getContext('2d');
+      t.filter = p.smooth > 0 ? `blur(${p.smooth}px)` : 'none';
+      t.drawImage(src, 0, 0, w, h);
+      const d = t.getImageData(0, 0, w, h).data;
+      const lums = new Float32Array(w*h);
+      for (let i = 0; i < w*h; i++) {
+        lums[i] = (d[i*4]*0.299 + d[i*4+1]*0.587 + d[i*4+2]*0.114) / 255;
+      }
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = p.lineWidth;
+      ctx.lineCap = 'round';
+      const levels = p.levels|0;
+      for (let l = 1; l < levels; l++) {
+        const threshold = l / levels;
+        ctx.beginPath();
+        for (let y = 0; y < h-1; y++) {
+          for (let x = 0; x < w-1; x++) {
+            const tl = lums[y*w+x] > threshold ? 1 : 0;
+            const tr = lums[y*w+x+1] > threshold ? 1 : 0;
+            const bl = lums[(y+1)*w+x] > threshold ? 1 : 0;
+            const br = lums[(y+1)*w+x+1] > threshold ? 1 : 0;
+            const idx = tl*8 + tr*4 + br*2 + bl;
+            if (idx === 0 || idx === 15) continue;
+            // simplified: draw midpoints on crossing edges
+            const interp = (a, b) => a / (a - b + 0.0001);
+            const left   = { x, y: y + interp(lums[y*w+x]-threshold, lums[(y+1)*w+x]-threshold) };
+            const right  = { x: x+1, y: y + interp(lums[y*w+x+1]-threshold, lums[(y+1)*w+x+1]-threshold) };
+            const top2   = { x: x + interp(lums[y*w+x]-threshold, lums[y*w+x+1]-threshold), y };
+            const bottom = { x: x + interp(lums[(y+1)*w+x]-threshold, lums[(y+1)*w+x+1]-threshold), y: y+1 };
+            const edges = [];
+            if (tl !== tr) edges.push(top2);
+            if (tr !== br) edges.push(right);
+            if (bl !== br) edges.push(bottom);
+            if (tl !== bl) edges.push(left);
+            if (edges.length >= 2) {
+              ctx.moveTo(edges[0].x, edges[0].y);
+              ctx.lineTo(edges[1].x, edges[1].y);
+            }
+          }
+        }
+        ctx.stroke();
+      }
+    }
+  },
+
+  pixelsort: {
+    label: 'Pixel Sort',
+    controls: [
+      { id:'direction', label:'Dirección', type:'select', options:['Horizontal','Vertical','Diagonal'], value:'Horizontal' },
+      { id:'threshold', label:'Umbral', min:0, max:255, step:1, value:100 },
+      { id:'sortBy', label:'Ordenar por', type:'select', options:['Brillo','Rojo','Verde','Azul','Saturación'], value:'Brillo' },
+    ],
+    render(src, out, ctx, p) {
+      const w = out.width, h = out.height;
+      const tmp = document.createElement('canvas');
+      tmp.width = w; tmp.height = h;
+      const t = tmp.getContext('2d');
+      t.drawImage(src, 0, 0, w, h);
+      const id = t.getImageData(0, 0, w, h);
+      const d = id.data;
+      const key = (i) => {
+        switch(p.sortBy) {
+          case 'Rojo': return d[i];
+          case 'Verde': return d[i+1];
+          case 'Azul': return d[i+2];
+          case 'Saturación': {
+            const r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255;
+            const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+            return (mx-mn)*255;
+          }
+          default: return d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
+        }
+      };
+      const thr = p.threshold;
+      if (p.direction === 'Horizontal') {
+        for (let y = 0; y < h; y++) {
+          let start = -1;
+          for (let x = 0; x <= w; x++) {
+            const i = (y*w+x)*4;
+            const v = x < w ? key(i) : -1;
+            if (v > thr && start === -1) start = x;
+            else if ((v <= thr || x === w) && start !== -1) {
+              const seg = [];
+              for (let sx = start; sx < x; sx++) seg.push(sx);
+              seg.sort((a,b) => key((y*w+a)*4) - key((y*w+b)*4));
+              const orig = seg.map(sx => [d[(y*w+sx)*4],d[(y*w+sx)*4+1],d[(y*w+sx)*4+2]]);
+              seg.forEach((sx,si) => {
+                d[(y*w+sx)*4]   = orig[si][0];
+                d[(y*w+sx)*4+1] = orig[si][1];
+                d[(y*w+sx)*4+2] = orig[si][2];
+              });
+              start = -1;
+            }
+          }
+        }
+      } else if (p.direction === 'Vertical') {
+        for (let x = 0; x < w; x++) {
+          let start = -1;
+          for (let y = 0; y <= h; y++) {
+            const i = (y*w+x)*4;
+            const v = y < h ? key(i) : -1;
+            if (v > thr && start === -1) start = y;
+            else if ((v <= thr || y === h) && start !== -1) {
+              const seg = [];
+              for (let sy = start; sy < y; sy++) seg.push(sy);
+              seg.sort((a,b) => key((a*w+x)*4) - key((b*w+x)*4));
+              const orig = seg.map(sy => [d[(sy*w+x)*4],d[(sy*w+x)*4+1],d[(sy*w+x)*4+2]]);
+              seg.forEach((sy,si) => {
+                d[(sy*w+x)*4]   = orig[si][0];
+                d[(sy*w+x)*4+1] = orig[si][1];
+                d[(sy*w+x)*4+2] = orig[si][2];
+              });
+              start = -1;
+            }
+          }
+        }
+      } else {
+        // diagonal: sort along y=x+k diagonals
+        for (let k = -(h-1); k < w; k++) {
+          const seg = [];
+          for (let x = Math.max(0,k); x < Math.min(w, h+k); x++) {
+            const y = x - k;
+            if (y < 0 || y >= h) continue;
+            if (key((y*w+x)*4) > thr) seg.push({x,y});
+            else {
+              if (seg.length) {
+                seg.sort((a,b) => key((a.y*w+a.x)*4)-key((b.y*w+b.x)*4));
+                const orig = seg.map(pt=>[d[(pt.y*w+pt.x)*4],d[(pt.y*w+pt.x)*4+1],d[(pt.y*w+pt.x)*4+2]]);
+                seg.forEach((pt,si)=>{d[(pt.y*w+pt.x)*4]=orig[si][0];d[(pt.y*w+pt.x)*4+1]=orig[si][1];d[(pt.y*w+pt.x)*4+2]=orig[si][2];});
+                seg.length=0;
+              }
+            }
+          }
+          if (seg.length) {
+            seg.sort((a,b) => key((a.y*w+a.x)*4)-key((b.y*w+b.x)*4));
+            const orig = seg.map(pt=>[d[(pt.y*w+pt.x)*4],d[(pt.y*w+pt.x)*4+1],d[(pt.y*w+pt.x)*4+2]]);
+            seg.forEach((pt,si)=>{d[(pt.y*w+pt.x)*4]=orig[si][0];d[(pt.y*w+pt.x)*4+1]=orig[si][1];d[(pt.y*w+pt.x)*4+2]=orig[si][2];});
+          }
+        }
+      }
+      t.putImageData(id, 0, 0);
+      ctx.drawImage(tmp, 0, 0);
+    }
+  },
+
+  blockify: {
+    label: 'Blockify',
+    controls: [
+      { id:'blockSize', label:'Tamaño bloque', min:2, max:60, step:1, value:12 },
+      { id:'shape', label:'Forma', type:'select', options:['Cuadrado','Círculo','Diamante'], value:'Cuadrado' },
+      { id:'gap', label:'Separación', min:0, max:8, step:1, value:1 },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+    ],
+    render(src, out, ctx, p) {
+      ctx.fillStyle = p.bgColor;
+      ctx.fillRect(0, 0, out.width, out.height);
+      const bs = p.blockSize|0;
+      const gap = p.gap|0;
+      const eff = bs - gap;
+      for (let y = 0; y < out.height; y += bs) {
+        for (let x = 0; x < out.width; x += bs) {
+          const col = sampleColor(src, (x+bs/2)/out.width, (y+bs/2)/out.height);
+          ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+          if (p.shape === 'Círculo') {
+            ctx.beginPath();
+            ctx.arc(x+bs/2, y+bs/2, eff/2, 0, Math.PI*2);
+            ctx.fill();
+          } else if (p.shape === 'Diamante') {
+            const cx=x+bs/2, cy=y+bs/2, r=eff/2;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy-r);
+            ctx.lineTo(cx+r, cy);
+            ctx.lineTo(cx, cy+r);
+            ctx.lineTo(cx-r, cy);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.fillRect(x, y, eff, eff);
+          }
+        }
+      }
+    }
+  },
+
+  threshold: {
+    label: 'Threshold',
+    controls: [
+      { id:'level', label:'Umbral', min:0, max:255, step:1, value:128 },
+      { id:'invert', label:'Invertir', type:'toggle', value:false },
+      { id:'colorA', label:'Color oscuro', type:'color', value:'#1c1a14' },
+      { id:'colorB', label:'Color claro', type:'color', value:'#fbf8f1' },
+      { id:'smooth', label:'Suavizado', min:0, max:10, step:0.5, value:0 },
+    ],
+    render(src, out, ctx, p) {
+      const w = out.width, h = out.height;
+      const tmp = document.createElement('canvas');
+      tmp.width=w; tmp.height=h;
+      const t=tmp.getContext('2d');
+      if (p.smooth>0) t.filter=`blur(${p.smooth}px)`;
+      t.drawImage(src,0,0,w,h);
+      const id=t.getImageData(0,0,w,h);
+      const d=id.data;
+      const ca=hexToRgb(p.colorA), cb=hexToRgb(p.colorB);
+      for (let i=0;i<w*h;i++) {
+        const lum=d[i*4]*0.299+d[i*4+1]*0.587+d[i*4+2]*0.114;
+        const above = (lum > p.level) !== p.invert;
+        const c = above ? cb : ca;
+        d[i*4]=c[0]; d[i*4+1]=c[1]; d[i*4+2]=c[2];
+      }
+      t.putImageData(id,0,0);
+      ctx.drawImage(tmp,0,0);
+    }
+  },
+
+  edges: {
+    label: 'Edge Detection',
+    controls: [
+      { id:'strength', label:'Fuerza', min:1, max:10, step:0.5, value:3 },
+      { id:'color', label:'Color borde', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+      { id:'invert', label:'Invertir', type:'toggle', value:false },
+      { id:'smooth', label:'Suavizado', min:0, max:5, step:0.5, value:1 },
+    ],
+    render(src, out, ctx, p) {
+      const w=out.width, h=out.height;
+      const tmp=document.createElement('canvas'); tmp.width=w; tmp.height=h;
+      const t=tmp.getContext('2d');
+      if(p.smooth>0) t.filter=`blur(${p.smooth}px)`;
+      t.drawImage(src,0,0,w,h);
+      const id=t.getImageData(0,0,w,h);
+      const d=id.data;
+      const lums=new Float32Array(w*h);
+      for(let i=0;i<w*h;i++) lums[i]=(d[i*4]*0.299+d[i*4+1]*0.587+d[i*4+2]*0.114)/255;
+      const out2=new Uint8ClampedArray(w*h*4);
+      const bg=hexToRgb(p.bgColor), fg=hexToRgb(p.color);
+      for(let y=1;y<h-1;y++){
+        for(let x=1;x<w-1;x++){
+          const gx=(lums[y*w+x+1]-lums[y*w+x-1]) +
+                   2*(lums[(y+1)*w+x+1]-lums[(y+1)*w+x-1]) +
+                   (lums[(y-1)*w+x+1]-lums[(y-1)*w+x-1]);
+          const gy=(lums[(y-1)*w+x]-lums[(y+1)*w+x]) +
+                   2*(lums[(y-1)*w+x+1]-lums[(y+1)*w+x+1]) +
+                   (lums[(y-1)*w+x-1]-lums[(y+1)*w+x-1]);
+          let mag=Math.min(1,Math.sqrt(gx*gx+gy*gy)*p.strength);
+          if(p.invert) mag=1-mag;
+          const i=(y*w+x)*4;
+          out2[i]  =bg[0]*(1-mag)+fg[0]*mag;
+          out2[i+1]=bg[1]*(1-mag)+fg[1]*mag;
+          out2[i+2]=bg[2]*(1-mag)+fg[2]*mag;
+          out2[i+3]=255;
+        }
+      }
+      const oid=new ImageData(out2,w,h);
+      t.putImageData(oid,0,0);
+      ctx.fillStyle=p.bgColor; ctx.fillRect(0,0,w,h);
+      ctx.drawImage(tmp,0,0);
+    }
+  },
+
+  crosshatch: {
+    label: 'Crosshatch',
+    controls: [
+      { id:'spacing', label:'Espaciado líneas', min:2, max:16, step:1, value:6 },
+      { id:'lineWidth', label:'Grosor', min:0.5, max:3, step:0.5, value:0.8 },
+      { id:'layers', label:'Capas (ángulos)', min:1, max:4, step:1, value:3 },
+      { id:'color', label:'Color línea', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+    ],
+    render(src, out, ctx, p) {
+      ctx.fillStyle=p.bgColor; ctx.fillRect(0,0,out.width,out.height);
+      const angles=[0,45,90,135];
+      const layers=p.layers|0;
+      const sp=p.spacing|0;
+      ctx.strokeStyle=p.color;
+      ctx.lineWidth=p.lineWidth;
+      for(let li=0;li<layers;li++){
+        const a=angles[li]*Math.PI/180;
+        const cos=Math.cos(a), sin=Math.sin(a);
+        const diag=Math.sqrt(out.width*out.width+out.height*out.height);
+        ctx.save();
+        ctx.translate(out.width/2,out.height/2);
+        ctx.rotate(a);
+        ctx.rect(-out.width,-out.height,out.width*2,out.height*2);
+        ctx.clip();
+        for(let t=-diag;t<diag;t+=sp){
+          // sample brightness at this line band
+          const cx=out.width/2+cos*t, cy=out.height/2+sin*t;
+          if(cx<0||cx>=out.width||cy<0||cy>=out.height){
+            // still draw faint line
+            ctx.globalAlpha=0.15;
+          } else {
+            const col=sampleColor(src,cx/out.width,cy/out.height);
+            const lum=(col[0]*0.299+col[1]*0.587+col[2]*0.114)/255;
+            // dark areas get lines, light areas don't
+            ctx.globalAlpha = lum > (0.2 + li*0.15) ? 0 : 0.85;
+          }
+          ctx.beginPath();
+          ctx.moveTo(-diag,t); ctx.lineTo(diag,t);
+          ctx.stroke();
+        }
+        ctx.restore();
+        ctx.globalAlpha=1;
+      }
+    }
+  },
+
+  wavelines: {
+    label: 'Wave Lines',
+    controls: [
+      { id:'lineCount', label:'Número de líneas', min:10, max:200, step:1, value:60 },
+      { id:'amplitude', label:'Amplitud', min:0, max:80, step:1, value:20 },
+      { id:'frequency', label:'Frecuencia', min:0.001, max:0.05, step:0.001, value:0.015 },
+      { id:'useColor', label:'Color imagen', type:'toggle', value:true },
+      { id:'lineColor', label:'Color línea', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+      { id:'lineWidth', label:'Grosor', min:0.5, max:4, step:0.5, value:1 },
+    ],
+    render(src, out, ctx, p) {
+      ctx.fillStyle=p.bgColor; ctx.fillRect(0,0,out.width,out.height);
+      const n=p.lineCount|0;
+      const step=out.height/(n+1);
+      ctx.lineWidth=p.lineWidth;
+      for(let li=0;li<n;li++){
+        const baseY=step*(li+1);
+        ctx.beginPath();
+        for(let x=0;x<=out.width;x+=2){
+          const col=sampleColor(src,x/out.width,baseY/out.height);
+          const lum=(col[0]*0.299+col[1]*0.587+col[2]*0.114)/255;
+          const y=baseY + Math.sin(x*p.frequency + li*0.3)*(1-lum)*p.amplitude;
+          if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        if(p.useColor){
+          const col=sampleColor(src,0.5,baseY/out.height);
+          ctx.strokeStyle=`rgb(${col[0]},${col[1]},${col[2]})`;
+        } else {
+          ctx.strokeStyle=p.lineColor;
+        }
+        ctx.stroke();
+      }
+    }
+  },
+
+  noisefield: {
+    label: 'Noise Field',
+    controls: [
+      { id:'scale', label:'Escala ruido', min:0.002, max:0.05, step:0.001, value:0.008 },
+      { id:'particles', label:'Partículas', min:500, max:8000, step:100, value:3000 },
+      { id:'steps', label:'Pasos', min:5, max:80, step:1, value:30 },
+      { id:'stepLen', label:'Long. paso', min:1, max:10, step:0.5, value:3 },
+      { id:'useColor', label:'Color imagen', type:'toggle', value:true },
+      { id:'lineColor', label:'Color línea', type:'color', value:'#1c1a14' },
+      { id:'bgColor', label:'Fondo', type:'color', value:'#fbf8f1' },
+      { id:'opacity', label:'Opacidad', min:1, max:100, step:1, value:15 },
+    ],
+    render(src, out, ctx, p) {
+      ctx.fillStyle=p.bgColor; ctx.fillRect(0,0,out.width,out.height);
+      const n=p.particles|0;
+      ctx.lineWidth=0.8;
+      for(let i=0;i<n;i++){
+        let x=Math.random()*out.width;
+        let y=Math.random()*out.height;
+        const col=sampleColor(src,x/out.width,y/out.height);
+        if(p.useColor){
+          ctx.strokeStyle=`rgba(${col[0]},${col[1]},${col[2]},${p.opacity/100})`;
+        } else {
+          const rgb=hexToRgb(p.lineColor);
+          ctx.strokeStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${p.opacity/100})`;
+        }
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        for(let s=0;s<p.steps;s++){
+          const angle=noise2(x*p.scale, y*p.scale)*Math.PI*4;
+          x+=Math.cos(angle)*p.stepLen;
+          y+=Math.sin(angle)*p.stepLen;
+          if(x<0||x>=out.width||y<0||y>=out.height) break;
+          ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+    }
+  },
+
+  voronoi: {
+    label: 'Voronoi',
+    controls: [
+      { id:'points', label:'Puntos', min:10, max:400, step:1, value:80 },
+      { id:'showEdges', label:'Mostrar bordes', type:'toggle', value:true },
+      { id:'edgeColor', label:'Color borde', type:'color', value:'#1c1a14' },
+      { id:'edgeWidth', label:'Grosor borde', min:0.5, max:4, step:0.5, value:1 },
+      { id:'colorMode', label:'Color celda', type:'select', options:['Imagen','Sólido','Brillo'], value:'Imagen' },
+      { id:'solidColor', label:'Color sólido', type:'color', value:'#8B2FFF' },
+    ],
+    render(src, out, ctx, p) {
+      const w=out.width, h=out.height;
+      const n=p.points|0;
+      const pts=Array.from({length:n},()=>({x:Math.random()*w, y:Math.random()*h}));
+      // assign colors from image
+      pts.forEach(pt=>{
+        const col=sampleColor(src,pt.x/w,pt.y/h);
+        pt.color=col;
+        pt.lum=(col[0]*0.299+col[1]*0.587+col[2]*0.114)/255;
+      });
+      // brute-force voronoi (fine for ≤400 pts)
+      const id=ctx.createImageData(w,h);
+      const d=id.data;
+      for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+          let minD=Infinity, minI=0;
+          for(let i=0;i<n;i++){
+            const dx=x-pts[i].x, dy=y-pts[i].y;
+            const dist=dx*dx+dy*dy;
+            if(dist<minD){minD=dist;minI=i;}
+          }
+          const pt=pts[minI];
+          const pi=(y*w+x)*4;
+          if(p.colorMode==='Sólido'){
+            const c=hexToRgb(p.solidColor);
+            d[pi]=c[0]; d[pi+1]=c[1]; d[pi+2]=c[2];
+          } else if(p.colorMode==='Brillo'){
+            const v=pt.lum*255|0;
+            d[pi]=v; d[pi+1]=v; d[pi+2]=v;
+          } else {
+            d[pi]=pt.color[0]; d[pi+1]=pt.color[1]; d[pi+2]=pt.color[2];
+          }
+          d[pi+3]=255;
+        }
+      }
+      ctx.putImageData(id,0,0);
+      if(p.showEdges){
+        // draw edges by finding boundary pixels
+        const ec=hexToRgb(p.edgeColor);
+        ctx.fillStyle=`rgb(${ec[0]},${ec[1]},${ec[2]})`;
+        // simplified: check 4-neighbors
+        const owners=new Int32Array(w*h);
+        for(let y=0;y<h;y++){
+          for(let x=0;x<w;x++){
+            let minD=Infinity,minI=0;
+            for(let i=0;i<n;i++){const dx=x-pts[i].x,dy=y-pts[i].y;const dist=dx*dx+dy*dy;if(dist<minD){minD=dist;minI=i;}}
+            owners[y*w+x]=minI;
+          }
+        }
+        ctx.lineWidth=p.edgeWidth;
+        ctx.strokeStyle=`rgb(${ec[0]},${ec[1]},${ec[2]})`;
+        for(let y=0;y<h-1;y++){
+          for(let x=0;x<w-1;x++){
+            const o=owners[y*w+x];
+            if(owners[y*w+x+1]!==o||owners[(y+1)*w+x]!==o){
+              ctx.fillRect(x,y,1,1);
+            }
+          }
+        }
+      }
+    }
+  },
+
+  vhs: {
+    label: 'VHS',
+    controls: [
+      { id:'chromaShift', label:'Chroma shift', min:0, max:30, step:1, value:8 },
+      { id:'scanLines', label:'Scan lines', min:0, max:5, step:0.5, value:1.5 },
+      { id:'noise', label:'Ruido', min:0, max:80, step:1, value:20 },
+      { id:'tracking', label:'Tracking', min:0, max:20, step:1, value:5 },
+      { id:'blur', label:'Blur', min:0, max:5, step:0.5, value:1 },
+      { id:'vignette', label:'Viñeta', min:0, max:100, step:1, value:40 },
+    ],
+    render(src, out, ctx, p) {
+      const w=out.width, h=out.height;
+      // base image
+      if(p.blur>0){
+        ctx.filter=`blur(${p.blur}px)`;
+      }
+      ctx.drawImage(src,0,0,w,h);
+      ctx.filter='none';
+      // chroma shift: get image data and shift channels
+      const id=ctx.getImageData(0,0,w,h);
+      const d=id.data;
+      const shift=p.chromaShift|0;
+      if(shift>0){
+        const copy=new Uint8ClampedArray(d);
+        for(let y=0;y<h;y++){
+          for(let x=0;x<w;x++){
+            const i=(y*w+x)*4;
+            // red channel shifted right
+            const rx=Math.min(w-1,x+shift);
+            const ri=(y*w+rx)*4;
+            d[i]=copy[ri];
+            // blue channel shifted left
+            const bx=Math.max(0,x-shift);
+            const bi=(y*w+bx)*4;
+            d[i+2]=copy[bi+2];
+          }
+        }
+      }
+      // noise
+      if(p.noise>0){
+        const amp=p.noise;
+        for(let i=0;i<w*h*4;i+=4){
+          const n=(Math.random()-0.5)*amp;
+          d[i]=Math.max(0,Math.min(255,d[i]+n));
+          d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));
+          d[i+2]=Math.max(0,Math.min(255,d[i+2]+n));
+        }
+      }
+      // tracking lines
+      if(p.tracking>0){
+        const numBands=Math.floor(Math.random()*3)+1;
+        for(let b=0;b<numBands;b++){
+          const bandY=Math.floor(Math.random()*h);
+          const bandH=Math.floor(Math.random()*8)+2;
+          const off=Math.floor((Math.random()-0.5)*p.tracking*4);
+          for(let y=bandY;y<Math.min(h,bandY+bandH);y++){
+            for(let x=0;x<w;x++){
+              const srcX=((x+off)%w+w)%w;
+              const si=(y*w+srcX)*4, di=(y*w+x)*4;
+              d[di]=d[si]; d[di+1]=d[si+1]; d[di+2]=d[si+2];
+            }
+          }
+        }
+      }
+      ctx.putImageData(id,0,0);
+      // scan lines
+      if(p.scanLines>0){
+        ctx.fillStyle=`rgba(0,0,0,${p.scanLines*0.05})`;
+        for(let y=0;y<h;y+=2){
+          ctx.fillRect(0,y,w,1);
+        }
+      }
+      // vignette
+      if(p.vignette>0){
+        const grad=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.3,w/2,h/2,Math.max(w,h)*0.75);
+        grad.addColorStop(0,'rgba(0,0,0,0)');
+        grad.addColorStop(1,`rgba(0,0,0,${p.vignette/100})`);
+        ctx.fillStyle=grad;
+        ctx.fillRect(0,0,w,h);
+      }
+    }
+  },
+
+};
+
+// ──────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────
+let _sampleTmp = null;
+function sampleColor(src, nx, ny) {
+  if (!_sampleTmp) { _sampleTmp = document.createElement('canvas'); _sampleTmp.width=1; _sampleTmp.height=1; }
+  const t = _sampleTmp.getContext('2d');
+  const x = Math.max(0, Math.min(src.width-1,  Math.floor(nx * src.width)));
+  const y = Math.max(0, Math.min(src.height-1, Math.floor(ny * src.height)));
+  t.drawImage(src, x, y, 1, 1, 0, 0, 1, 1);
+  const d = t.getImageData(0,0,1,1).data;
+  return [d[0],d[1],d[2],d[3]];
+}
+
+function hexToRgb(hex) {
+  const r=parseInt(hex.slice(1,3),16);
+  const g=parseInt(hex.slice(3,5),16);
+  const b=parseInt(hex.slice(5,7),16);
+  return [r,g,b];
+}
+
+// Simplex-like noise (value noise)
+const _noisePerm = Array.from({length:512},()=>Math.floor(Math.random()*256));
+function noise2(x,y) {
+  const xi=Math.floor(x)&255, yi=Math.floor(y)&255;
+  const xf=x-Math.floor(x), yf=y-Math.floor(y);
+  const u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf);
+  const aa=_noisePerm[(_noisePerm[xi]+yi)&511]/255;
+  const ba=_noisePerm[(_noisePerm[xi+1]+yi)&511]/255;
+  const ab=_noisePerm[(_noisePerm[xi]+yi+1)&511]/255;
+  const bb=_noisePerm[(_noisePerm[xi+1]+yi+1)&511]/255;
+  return (aa*(1-u)+ba*u)*(1-v) + (ab*(1-u)+bb*u)*v;
+}
+
+// ──────────────────────────────────────────────
+// CONTROLS UI
+// ──────────────────────────────────────────────
+const params = {};
+
+function buildControls(effectKey) {
+  const eff = EFFECTS[effectKey];
+  const container = document.getElementById('effect-controls');
+  container.innerHTML = '';
+  if (!eff.controls) return;
+  eff.controls.forEach(ctrl => {
+    if (!(ctrl.id in params)) params[ctrl.id] = ctrl.value;
+    const row = document.createElement('div');
+    row.className = 'ctrl-row';
+    if (ctrl.type === 'toggle') {
+      const label = document.createElement('label');
+      label.style.flexDirection='row';
+      label.style.alignItems='center';
+      label.style.justifyContent='space-between';
+      label.textContent = ctrl.label;
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.checked = params[ctrl.id];
+      chk.style.width='16px'; chk.style.height='16px'; chk.style.cursor='pointer';
+      chk.addEventListener('change', () => { params[ctrl.id]=chk.checked; requestRender(); });
+      label.appendChild(chk);
+      row.appendChild(label);
+    } else if (ctrl.type === 'color') {
+      const label = document.createElement('label');
+      label.textContent = ctrl.label;
+      const inp = document.createElement('input');
+      inp.type='color'; inp.value=params[ctrl.id];
+      inp.style.width='32px'; inp.style.height='24px'; inp.style.cursor='pointer'; inp.style.border='none';
+      inp.addEventListener('input', () => { params[ctrl.id]=inp.value; requestRender(); });
+      label.appendChild(inp);
+      row.appendChild(label);
+    } else if (ctrl.type === 'select') {
+      const label = document.createElement('label');
+      label.textContent = ctrl.label;
+      row.appendChild(label);
+      const sel = document.createElement('select');
+      sel.style.cssText='width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-family:var(--font-mono);font-size:11px;cursor:pointer;';
+      ctrl.options.forEach(o => {
+        const opt=document.createElement('option');
+        opt.value=o; opt.textContent=o;
+        if (o===params[ctrl.id]) opt.selected=true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', () => { params[ctrl.id]=sel.value; requestRender(); });
+      row.appendChild(sel);
+    } else {
+      const label = document.createElement('label');
+      label.innerHTML = `${ctrl.label} <b>${typeof params[ctrl.id]==='number' ? params[ctrl.id].toFixed(ctrl.step<1?3:0) : params[ctrl.id]}</b>`;
+      const inp = document.createElement('input');
+      inp.type='range'; inp.min=ctrl.min; inp.max=ctrl.max; inp.step=ctrl.step; inp.value=params[ctrl.id];
+      inp.addEventListener('input', () => {
+        params[ctrl.id]=parseFloat(inp.value);
+        label.innerHTML=`${ctrl.label} <b>${params[ctrl.id].toFixed(ctrl.step<1?3:0)}</b>`;
+        requestRender();
+      });
+      row.appendChild(label);
+      row.appendChild(inp);
+    }
+    container.appendChild(row);
+  });
+}
+
+// ──────────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────────
+let renderPending = false;
+function requestRender() {
+  if (renderPending) return;
+  renderPending = true;
+  requestAnimationFrame(() => { renderPending=false; doRender(); });
+}
+
+function doRender() {
+  if (!srcImage) return;
+  const eff = EFFECTS[currentEffect];
+  // reset matrix animation state on effect change
+  if (eff.render) eff.render(srcImage, outCanvas, outCtx, params);
+}
+
+// ──────────────────────────────────────────────
+// ANIMATION LOOP (matrix rain etc.)
+// ──────────────────────────────────────────────
+let loopActive = false;
+function startLoop() {
+  if (loopActive) return;
+  loopActive = true;
+  (function tick() {
+    if (!loopActive) return;
+    const eff = EFFECTS[currentEffect];
+    if (eff.isAnimated && srcImage) {
+      eff.render(srcImage, outCanvas, outCtx, params);
+    }
+    animFrame = requestAnimationFrame(tick);
+  })();
+}
+function stopLoop() {
+  loopActive = false;
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame=null; }
+}
+function updateLoop() {
+  stopLoop();
+  if (EFFECTS[currentEffect].isAnimated) startLoop();
+}
+
+// ──────────────────────────────────────────────
+// SOURCE IMAGE
+// ──────────────────────────────────────────────
+function setSource(imgOrCanvas) {
+  srcImage = imgOrCanvas;
+  // size output canvas
+  const maxW = document.querySelector('.canvas-area').clientWidth - 48;
+  const maxH = document.querySelector('.canvas-area').clientHeight - 48;
+  const srcW = imgOrCanvas.videoWidth || imgOrCanvas.width || imgOrCanvas.naturalWidth;
+  const srcH = imgOrCanvas.videoHeight || imgOrCanvas.height || imgOrCanvas.naturalHeight;
+  const ratio = srcW / srcH;
+  let w = srcW, h = srcH;
+  if (w > maxW) { w = maxW; h = w / ratio; }
+  if (h > maxH) { h = maxH; w = h * ratio; }
+  outCanvas.width = Math.floor(w);
+  outCanvas.height = Math.floor(h);
+  document.getElementById('drop-zone').style.display = 'none';
+  document.getElementById('canvas-wrap').style.display = 'block';
+  document.getElementById('btn-export').style.display = 'block';
+  updateLoop();
+  requestRender();
+}
+
+function loadImage(file) {
+  stopWebcam();
+  const url = URL.createObjectURL(file);
+  if (file.type.startsWith('video/')) {
+    videoEl.src = url;
+    videoEl.loop = true;
+    videoEl.play();
+    videoEl.addEventListener('loadeddata', () => {
+      setSource(videoEl);
+      startVideoLoop();
+    }, {once:true});
+  } else {
+    const img = new Image();
+    img.onload = () => { setSource(img); URL.revokeObjectURL(url); };
+    img.src = url;
+  }
+}
+
+let videoLoopFrame = null;
+function startVideoLoop() {
+  function tick() {
+    if (srcImage === videoEl) {
+      if (!EFFECTS[currentEffect].isAnimated) requestRender();
+      videoLoopFrame = requestAnimationFrame(tick);
+    }
+  }
+  if (videoLoopFrame) cancelAnimationFrame(videoLoopFrame);
+  videoLoopFrame = requestAnimationFrame(tick);
+}
+
+// ──────────────────────────────────────────────
+// WEBCAM
+// ──────────────────────────────────────────────
+async function toggleWebcam() {
+  if (webcamActive) { stopWebcam(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:true});
+    webcamStream = stream;
+    webcamActive = true;
+    videoEl.srcObject = stream;
+    videoEl.play();
+    const onReady = () => {
+      if (!videoEl.videoWidth) { setTimeout(onReady, 100); return; }
+      setSource(videoEl);
+      startVideoLoop();
+      document.getElementById('webcam-badge').style.display='inline-flex';
+      document.getElementById('btn-webcam').textContent='Parar webcam';
+    };
+    videoEl.addEventListener('loadedmetadata', onReady, {once:true});
+  } catch(e) {
+    alert('No se pudo acceder a la webcam.');
+  }
+}
+function stopWebcam() {
+  if (!webcamActive) return;
+  webcamStream?.getTracks().forEach(t=>t.stop());
+  webcamStream = null;
+  webcamActive = false;
+  videoEl.srcObject = null;
+  document.getElementById('webcam-badge').style.display='none';
+  document.getElementById('btn-webcam').textContent='Webcam';
+}
+
+// ──────────────────────────────────────────────
+// EXPORT
+// ──────────────────────────────────────────────
+function exportImage() {
+  const a=document.createElement('a');
+  a.download=`${currentEffect}-export.png`;
+  a.href=outCanvas.toDataURL('image/png');
+  a.click();
+}
+
+// ──────────────────────────────────────────────
+// EVENTS
+// ──────────────────────────────────────────────
+document.querySelectorAll('.effect-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.effect-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentEffect = btn.dataset.effect;
+    // reset effect-local state
+    if (EFFECTS[currentEffect]._drops) EFFECTS[currentEffect]._drops = null;
+    // rebuild controls with fresh defaults for new effect
+    const eff = EFFECTS[currentEffect];
+    eff.controls?.forEach(c => { params[c.id] = c.value; });
+    buildControls(currentEffect);
+    updateLoop();
+    requestRender();
+  });
+});
+
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) loadImage(e.target.files[0]);
+});
+
+const dropZone = document.getElementById('drop-zone');
+const canvasArea = document.getElementById('canvas-area');
+[dropZone, canvasArea].forEach(el => {
+  el.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  el.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) loadImage(f);
+  });
+});
+dropZone.addEventListener('click', () => document.getElementById('file-input').click());
+document.getElementById('btn-webcam').addEventListener('click', toggleWebcam);
+
+// init
+buildControls(currentEffect);
+</script>
+</body>
+</html>
