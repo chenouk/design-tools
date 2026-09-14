@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vimeo → embed · m-e.studio</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --fg: #000;
+    --bg: #fff;
+    --muted: #6b6b6b;
+    --line: #d9d9d9;
+    --soft: #f4f4f4;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 20px 64px; }
+
+  header { border-bottom: 1px solid var(--fg); padding-bottom: 16px; margin-bottom: 28px; }
+  h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  label.field { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  textarea {
+    width: 100%; min-height: 200px; resize: vertical;
+    font: 13px/1.5 var(--mono); color: var(--fg); background: var(--bg);
+    border: 1px solid var(--fg); border-radius: 0; padding: 12px;
+  }
+  textarea:focus { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 32px; }
+  .bar .count { margin-right: auto; font-size: 13px; color: var(--muted); }
+
+  button {
+    font: inherit; font-size: 13px; cursor: pointer;
+    background: var(--bg); color: var(--fg);
+    border: 1px solid var(--fg); border-radius: 0; padding: 8px 14px;
+    min-height: 38px;
+  }
+  button:hover { background: var(--fg); color: var(--bg); }
+  button.primary { background: var(--fg); color: var(--bg); }
+  button.primary:hover { background: var(--bg); color: var(--fg); }
+  button:disabled { opacity: 0.35; cursor: default; }
+  button:disabled:hover { background: var(--bg); color: var(--fg); }
+  button.done, button.done:hover { background: var(--fg); color: var(--bg); }
+
+  .results { display: grid; gap: 16px; }
+  .card { border: 1px solid var(--fg); }
+  .card-head {
+    display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center;
+    padding: 12px 14px; border-bottom: 1px solid var(--line);
+  }
+  .card-title { margin: 0; font-size: 15px; font-weight: 600; margin-right: auto; word-break: break-word; }
+  .card-title small { font-weight: 400; color: var(--muted); font-family: var(--mono); font-size: 12px; margin-left: 6px; }
+  .card-actions { display: flex; gap: 8px; }
+  pre.code {
+    margin: 0; padding: 12px 14px; background: var(--soft);
+    font: 12px/1.55 var(--mono); white-space: pre-wrap; word-break: break-all;
+  }
+  .status { padding: 8px 14px; font-size: 13px; border-top: 1px solid var(--line); }
+  .status:empty { display: none; }
+
+  details { border-top: 1px solid var(--line); }
+  summary { cursor: pointer; padding: 10px 14px; font-size: 13px; list-style: none; user-select: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "+ "; font-family: var(--mono); }
+  details[open] summary::before { content: "− "; }
+  .preview { padding: 0 14px 14px; }
+
+  .card.warn { border-style: dashed; }
+  .card.warn .card-head { border-bottom: 0; }
+  .warn-line { font: 12px/1.5 var(--mono); color: var(--muted); padding: 0 14px 12px; word-break: break-all; margin: 0; }
+
+  .empty { color: var(--muted); font-size: 14px; border: 1px dashed var(--line); padding: 24px; text-align: center; }
+
+  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--fg); font-size: 13px; color: var(--muted); }
+  footer h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg); margin: 0 0 8px; font-weight: 600; }
+  footer ol { margin: 0 0 8px; padding-left: 20px; }
+  footer p { margin: 0; }
+  code, kbd { font-family: var(--mono); font-size: 12px; background: var(--soft); padding: 1px 4px; }
+
+  @media (max-width: 520px) {
+    .wrap { padding: 24px 16px 48px; }
+    .card-actions { width: 100%; }
+    .card-actions button { flex: 1; }
+    .bar button { flex: 1; }
+    .bar .count { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Vimeo → embed</h1>
+    <p>Pega enlaces o códigos de Vimeo y obtén el HTML para m-e.studio: reproducción automática, en bucle, sin sonido y sin controles.</p>
+  </header>
+
+  <label class="field" for="input">Vídeos (uno por línea o códigos de inserción completos)</label>
+  <textarea id="input" spellcheck="false" autocomplete="off" placeholder="https://vimeo.com/1224572801
+https://player.vimeo.com/video/1224572801?...
+&lt;div style=&quot;padding:56.25% 0 0 0;...&quot;&gt;&lt;iframe src=&quot;https://player.vimeo.com/video/...&quot; title=&quot;...&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;"></textarea>
+
+  <div class="bar">
+    <span class="count" id="count"></span>
+    <button type="button" id="clear">Limpiar</button>
+    <button type="button" class="primary" id="copyAll" disabled>Copiar todos</button>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <footer>
+    <h2>Cómo usarlo en WordPress</h2>
+    <ol>
+      <li>En el editor, escribe <kbd>/html</kbd> y elige <strong>HTML personalizado</strong>.</li>
+      <li>Pega el código copiado.</li>
+      <li>Pulsa <strong>Actualizar</strong>.</li>
+    </ol>
+    <p>No uses los bloques «Vimeo» ni «Incrustar»: ponen el reproductor con controles.</p>
+  </footer>
+
+</div>
+
+<script>
+// Parámetros fijos. La URL se construye siempre desde cero: nunca se reutiliza
+// nada de lo que traiga el código original (salvo el ID y el hash h= de vídeos ocultos).
+var PARAMS = 'badge=0&amp;loop=1&amp;autoplay=1&amp;background=1&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;muted=1';
+
+function decodeEntities(s) {
+  return s
+    .replace(/&#(\d+);/g, function (_, n) { return String.fromCharCode(+n); })
+    .replace(/&#x([0-9a-f]+);/gi, function (_, n) { return String.fromCharCode(parseInt(n, 16)); })
+    .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&');
+}
+
+function escapeAttr(s) {
+  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function getAttr(tag, name) {
+  var re = new RegExp('(?:^|\\s)' + name + '\\s*=\\s*(?:"([^"]*)"|\'([^\']*)\'|([^\\s>]+))', 'i');
+  var m = tag.match(re);
+  if (!m) return null;
+  return decodeEntities(m[1] != null ? m[1] : m[2] != null ? m[2] : m[3]);
+}
+
+// Extrae { id, hash } de una URL o texto de Vimeo. Devuelve null si no hay vídeo.
+function parseVimeoUrl(text) {
+  var s = decodeEntities(text);
+  var m = s.match(/(?:player\.)?vimeo\.com\/(?:video\/)?(?:[^\s?#"'<>]*?\/)?(\d{5,})(?:\/([0-9a-f]{6,}))?(?=[\/?#\s"'<>]|$)/i);
+  if (!m) return null;
+  var hash = m[2] || null;
+  var h = s.match(/[?&]h=([0-9a-z]+)/i);
+  if (h) hash = h[1];
+  return { id: m[1], hash: hash };
+}
+
+function buildEmbed(v) {
+  var src = 'https://player.vimeo.com/video/' + v.id + '?' + (v.hash ? 'h=' + v.hash + '&amp;' : '') + PARAMS;
+  var title = escapeAttr(v.title || v.id);
+  return '<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="' + src +
+    '" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="' +
+    title + '"></iframe></div>';
+}
+
+// Agrupa las líneas: un <iframe> partido en varias líneas cuenta como una sola entrada.
+function splitEntries(text) {
+  var lines = text.replace(/\r\n?/g, '\n').split('\n');
+  var entries = [], buf = [];
+  lines.forEach(function (line) {
+    buf.push(line);
+    var joined = buf.join('\n');
+    if (/<iframe\b[^>]*$/i.test(joined)) return; // la etiqueta <iframe …> aún no se ha cerrado
+    entries.push(joined);
+    buf = [];
+  });
+  if (buf.length) entries.push(buf.join('\n'));
+  return entries;
+}
+
+// Devuelve una lista de { type: 'video', id, hash, title } o { type: 'warn', text }.
+function parseInput(text) {
+  var out = [];
+  splitEntries(text).forEach(function (entry) {
+    var clean = entry
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<script\b[^>]*\/?>/gi, '')
+      .trim();
+    // Líneas vacías o que solo tienen etiquetas sueltas (</div>, <p>…) se ignoran.
+    if (!clean || !clean.replace(/<\/?[a-z][^>]*>/gi, '').trim() && !/<iframe\b/i.test(clean)) return;
+
+    var iframes = clean.match(/<iframe\b[^>]*>/gi);
+    if (iframes) {
+      iframes.forEach(function (tag) {
+        var src = getAttr(tag, 'src') || '';
+        var v = parseVimeoUrl(src);
+        if (v) {
+          var title = getAttr(tag, 'title');
+          out.push({ type: 'video', id: v.id, hash: v.hash, title: title ? title.trim() : '' });
+        } else {
+          out.push({ type: 'warn', text: tag });
+        }
+      });
+      return;
+    }
+
+    var v = /^\d{5,}$/.test(clean) ? { id: clean, hash: null } : parseVimeoUrl(clean);
+    if (v) out.push({ type: 'video', id: v.id, hash: v.hash, title: '' });
+    else out.push({ type: 'warn', text: clean });
+  });
+  return out;
+}
+
+if (typeof module !== 'undefined') module.exports = { parseInput: parseInput, buildEmbed: buildEmbed };
+
+if (typeof document !== 'undefined') (function () {
+  var input = document.getElementById('input');
+  var results = document.getElementById('results');
+  var countEl = document.getElementById('count');
+  var copyAllBtn = document.getElementById('copyAll');
+  var videos = [];
+  var timer;
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).catch(fallback);
+    }
+    return Promise.resolve(fallback());
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  }
+
+  function flash(btn, label) {
+    copyText(btn._getText()).then(function () {
+      btn.textContent = 'Copiado';
+      btn.classList.add('done');
+      clearTimeout(btn._t);
+      btn._t = setTimeout(function () { btn.textContent = label; btn.classList.remove('done'); }, 1600);
+    });
+  }
+
+  function renderTitle(h, v) {
+    h.textContent = v.title || v.id;
+    if (v.title) h.appendChild(el('small', null, v.id));
+  }
+
+  function videoCard(v) {
+    var card = el('article', 'card');
+    var head = el('div', 'card-head');
+    var h = el('h3', 'card-title');
+    renderTitle(h, v);
+    var actions = el('div', 'card-actions');
+    var checkBtn = el('button', null, 'Comprobar');
+    checkBtn.type = 'button';
+    var copyBtn = el('button', 'primary', 'Copiar');
+    copyBtn.type = 'button';
+    copyBtn._getText = function () { return buildEmbed(v); };
+    copyBtn.addEventListener('click', function () { flash(copyBtn, 'Copiar'); });
+    actions.append(checkBtn, copyBtn);
+    head.append(h, actions);
+
+    var pre = el('pre', 'code', buildEmbed(v));
+    var status = el('div', 'status');
+
+    checkBtn.addEventListener('click', function () {
+      checkBtn.disabled = true;
+      status.textContent = 'Comprobando…';
+      var page = 'https://vimeo.com/' + v.id + (v.hash ? '/' + v.hash : '');
+      fetch('https://vimeo.com/api/oembed.json?url=' + encodeURIComponent(page))
+        .then(function (r) {
+          if (!r.ok) throw r.status;
+          return r.json();
+        })
+        .then(function (data) {
+          status.textContent = 'Disponible en Vimeo: «' + data.title + '».';
+          if (!v.title && data.title) {
+            v.title = data.title;
+            renderTitle(h, v);
+            pre.textContent = buildEmbed(v);
+            status.textContent += ' Título añadido al código.';
+          }
+        })
+        .catch(function (code) {
+          status.textContent = typeof code === 'number'
+            ? 'Vimeo no lo muestra como público (' + code + '). Revisa el ID o, si es un vídeo oculto, que el enlace incluya su hash.'
+            : 'No se pudo conectar con Vimeo. Revisa la conexión.';
+        })
+        .then(function () { checkBtn.disabled = false; });
+    });
+
+    var details = el('details');
+    var summary = el('summary', null, 'Vista previa');
+    var preview = el('div', 'preview');
+    details.append(summary, preview);
+    details.addEventListener('toggle', function () {
+      // Solo se carga al abrir, y se quita al cerrar para que no siga reproduciéndose.
+      preview.innerHTML = details.open ? buildEmbed(v) : '';
+    });
+
+    card.append(head, pre, status, details);
+    return card;
+  }
+
+  function warnCard(text) {
+    var card = el('article', 'card warn');
+    var head = el('div', 'card-head');
+    head.appendChild(el('h3', 'card-title', 'No se reconoce ningún vídeo de Vimeo en esta línea'));
+    var line = el('p', 'warn-line', text.length > 240 ? text.slice(0, 240) + '…' : text);
+    card.append(head, line);
+    return card;
+  }
+
+  function render() {
+    var items = parseInput(input.value);
+    videos = items.filter(function (i) { return i.type === 'video'; });
+    var warns = items.length - videos.length;
+    results.innerHTML = '';
+
+    if (!items.length) {
+      results.appendChild(el('div', 'empty', 'Los bloques aparecerán aquí.'));
+    }
+    items.forEach(function (item) {
+      results.appendChild(item.type === 'video' ? videoCard(item) : warnCard(item.text));
+    });
+
+    var parts = [];
+    if (videos.length) parts.push(videos.length + (videos.length === 1 ? ' vídeo' : ' vídeos'));
+    if (warns) parts.push(warns + (warns === 1 ? ' línea sin reconocer' : ' líneas sin reconocer'));
+    countEl.textContent = parts.join(' · ');
+    copyAllBtn.disabled = !videos.length;
+  }
+
+  copyAllBtn._getText = function () { return videos.map(buildEmbed).join('\n\n'); };
+  copyAllBtn.addEventListener('click', function () { flash(copyAllBtn, 'Copiar todos'); });
+
+  document.getElementById('clear').addEventListener('click', function () {
+    input.value = '';
+    render();
+    input.focus();
+  });
+
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(render, 150);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
