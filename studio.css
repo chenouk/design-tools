@@ -112,7 +112,7 @@ h1, .header-title, .tool-title, .section-title, .panel-header h1, .card-title, .
 h1, .header-title, .tool-title, .section-title, .panel-header h1 { text-transform: lowercase; }
 .header-title, .tool-title { font-size: 18px; }
 .panel-header h1 { font-size: 28px; }
-.panel-header p { font-size: 13px; color: var(--gris); margin-top: 6px; }
+.panel-header p { font-size: 16px; color: var(--gris); margin-top: 6px; }
 
 /* ── cabecera ── */
 .app-header {
@@ -121,7 +121,7 @@ h1, .header-title, .tool-title, .section-title, .panel-header h1 { text-transfor
 }
 .back-link {
   font-family: var(--mono);
-  font-size: 15px !important;
+  font-size: 16px !important;
   font-weight: 400;
   letter-spacing: 0;
   color: var(--tinta);
@@ -155,20 +155,20 @@ h1, .header-title, .tool-title, .section-title, .panel-header h1 { text-transfor
   align-items: center;
   gap: 7px;
 }
-.ctrl label, .ctrl-row label, .toggle-label { font-size: 13px; color: var(--gris); }
+.ctrl label, .ctrl-row label, .toggle-label { font-size: 16px; color: var(--gris); }
 .ctrl label, .ctrl-row label { flex-wrap: wrap; gap: 0 6px; }
 .ctrl label b, .ctrl-row label b {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 400;
   color: var(--tinta);
   font-variant-numeric: tabular-nums;
 }
 .variations-label, .preview-lbl { font-size: 14px; font-weight: 400; color: var(--gris); }
 .preview-hint, .count-badge, .dim-label, .diml, .status, .upload-hint, .img-name,
-.ink-label, .color-label, .print-note, .setting-label, .tool-sub { font-size: 13px; color: var(--gris); }
+.ink-label, .color-label, .print-note, .setting-label, .tool-sub { font-size: 14px; color: var(--gris); }
 .badge, .card-num, .panel-badge {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--gris);
   background: none;
   border: 1px solid var(--linea);
@@ -207,7 +207,7 @@ input[type=range]::-moz-range-thumb {
 /* ── campos ── */
 input[type=text], input[type=number], select, textarea {
   font-family: var(--mono) !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   letter-spacing: 0;
   background: #fff !important;
   color: var(--tinta);
@@ -222,7 +222,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
    Sin relleno; la activa se marca con borde en tinta y línea naranja debajo. */
 .mb, .ap, .sbtn, .size-btn, .effect-btn, .seg-btn, .ink-preset, .preset-item {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
@@ -232,7 +232,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
   transition: color .12s, border-color .12s;
 }
 .mb { padding: 4px 9px; }
-.sbtn span, .size-btn span { font-size: 12px; opacity: 1; color: var(--gris); }
+.sbtn span, .size-btn span { font-size: 14px; opacity: 1; color: var(--gris); }
 .mb:hover, .ap:hover, .sbtn:hover, .size-btn:hover, .effect-btn:hover, .seg-btn:hover,
 .ink-preset:hover, .preset-item:hover {
   color: var(--naranja);
@@ -254,7 +254,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 /* ── pestañas: enlace en Inconsolata, la activa con línea naranja ── */
 .tab {
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
@@ -267,7 +267,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 /* ── botón principal: el único amarillo de la pantalla ── */
 .bp, .btn-print, button.primary {
   font-family: var(--mono);
-  font-size: 15px !important;
+  font-size: 16px !important;
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
@@ -288,7 +288,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 /* ── botones secundarios: caja de línea fina ── */
 .bs, .save-btn, .rm-btn:not(.card-thumb .rm-btn) {
   font-family: var(--mono);
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
@@ -321,7 +321,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .upload-area.has-img { border: 1px solid var(--linea); }
 .upload-icon, .bulk-zone-icon { background: none; border: 0; color: var(--tinta); }
 .upload-icon svg, #drop-zone svg, .thumb-ph svg { opacity: 1; }
-#drop-zone small { font-size: 13px; color: var(--gris); }
+#drop-zone small { font-size: 14px; color: var(--gris); }
 .slot { background: var(--soporte); border: 1px dashed var(--linea); }
 .slot:hover { border-color: var(--tinta); }
 .thumb-item, .card-thumb, .img-thumb.contain { background: var(--soporte); }
@@ -353,7 +353,7 @@ canvas, #preview, #cv, #output-canvas, .preview-sheet, .mini-thumb { box-shadow:
 .mini-thumb:hover { transform: none; border-color: var(--linea); }
 .mini-thumb.active { border-color: var(--tinta); }
 hr.div { border-top: 1px solid var(--linea); }
-#webcam-badge { background: var(--azul); color: var(--tinta); font-size: 12px; letter-spacing: 0; text-transform: none; }
+#webcam-badge { background: var(--azul); color: var(--tinta); font-size: 14px; letter-spacing: 0; text-transform: none; }
 
 /* ── fanzine ── */
 .settings, .tabs { background: var(--fondo); }
@@ -361,14 +361,14 @@ hr.div { border-top: 1px solid var(--linea); }
 .v-sep { background: var(--linea); }
 .page-card:hover { border-color: var(--tinta); }
 .page-card.drop-target { box-shadow: none !important; }
-.card-label { font-size: 13px; font-weight: 400; }
+.card-label { font-size: 14px; font-weight: 400; }
 .section-title { font-size: 28px; }
 .section-sub { font-size: 16px; color: var(--tinta); margin-top: 8px; }
 .instr-card h3 { font-size: 20px; }
-.instr-list li { color: var(--tinta); font-size: 15px; }
+.instr-list li { color: var(--tinta); font-size: 16px; }
 .instr-list li::before {
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   background: none;
   color: var(--gris);
@@ -385,9 +385,12 @@ hr.div { border-top: 1px solid var(--linea); }
 ════════════════════════════════════════════════════════════════ */
 .sheet-handle { display: none; }
 
+/* paneles anchos: caben los 16 px de Inconsolata del manual */
+.ctrl-panel, .app > .panel { width: 360px; }
+
 /* ── TABLET ── */
 @media (max-width: 1100px) and (min-width: 901px) {
-  .ctrl-panel, .app > .panel { width: 248px !important; }
+  .ctrl-panel, .app > .panel { width: 320px; }
   .app-header { padding-left: 12px !important; padding-right: 12px !important; }
 }
 
@@ -449,7 +452,7 @@ hr.div { border-top: 1px solid var(--linea); }
   .sheet-handle .sh-grip { display: none; }
   .sheet-handle .sh-label {
     font-family: var(--mono);
-    font-size: 15px;
+    font-size: 16px;
     letter-spacing: 0;
     color: var(--tinta);
   }
