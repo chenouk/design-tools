@@ -11,6 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Solo los archivos del sitio: sin .git ni .github. Los objetos de .git son
+      # de solo lectura y, al intentar sobrescribirlos, sftp daba «Permission denied».
+      - name: Prepare site files
+        run: |
+          mkdir deploy
+          rsync -a --exclude='.*' --exclude='deploy' --exclude='CLAUDE.md' ./ deploy/
+
       - name: Deploy via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
@@ -18,7 +25,7 @@ jobs:
           port: 22
           username: acc763189086
           password: ${{ secrets.FTP_PASSWORD }}
-          local_path: ./
+          local_path: ./deploy/*
           remote_path: ./
           sftp_only: true
           delete_remote_files: false
