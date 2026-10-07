@@ -1,221 +1,406 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-
 /* ════════════════════════════════════════════════════════════════
-   STUDIO — shared design system for the design-tool suite
-   Warm cream + ink, Space Grotesk + Space Mono, crisp tooling.
-   Loaded AFTER each file's inline <style> so it re-skins them.
+   STUDIO — sistema de diseño compartido de las herramientas
+   Aplica el manual de marca de m—e studio (marca/manual.html):
+   tinta sobre fondo claro, Space Grotesk / Inter / Inconsolata,
+   líneas de 1 px, esquinas rectas, amarillo solo en el botón principal
+   y naranja solo como acento.
+   Se carga DESPUÉS del <style> de cada archivo para re-vestirlo.
 ════════════════════════════════════════════════════════════════ */
 
+/* ── tipografías, servidas desde aquí (SIL OFL), sin Google Fonts ── */
+@font-face {
+  font-family: 'Space Grotesk'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(fonts/space-grotesk-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Space Grotesk'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(fonts/space-grotesk-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(fonts/inter-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inconsolata'; font-style: normal; font-weight: 400 700; font-stretch: 100%; font-display: swap;
+  src: url(fonts/inconsolata-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inconsolata'; font-style: normal; font-weight: 400 700; font-stretch: 100%; font-display: swap;
+  src: url(fonts/inconsolata-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
-  /* surfaces — warm cream family */
-  --bg: #efe9dd;
-  --surface: #fbf8f1;
-  --surface-2: #f1ece1;
-  --surf2: #f1ece1;
-  --card-bg: #fbf8f1;
-  --panel-bg: #fbf8f1;
-  --input-bg: #f1ece1;
-  --hover-bg: #ece6da;
+  /* marca — mismos nombres y valores que marca/marca.css */
+  --tinta: #112222;
+  --fondo: #FBFAF7;
+  --linea: rgba(17,34,34,.18);
+  --gris: rgba(17,34,34,.66);
+  --amarillo: #EFFF5D;
+  --naranja: #E8501A;
+  --azul: #A2C1C4;
+  --soporte: #EFEDE7;
+  --sg: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --inter: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Inconsolata', ui-monospace, Menlo, monospace;
 
-  /* ink — warm near-black */
-  --text: #1c1a14;
-  --text-2: #6a6354;
-  --text2: #6a6354;
-  --text-3: #a49c89;
-  --text3: #a49c89;
-  --accent: #1c1a14;
-  --accent-inv: #fbf8f1;
+  /* nombres que ya usan las herramientas, apuntando a la marca */
+  --bg: var(--fondo);
+  --surface: var(--fondo);
+  --surface-2: #fff;
+  --surf2: #fff;
+  --card-bg: var(--fondo);
+  --panel-bg: var(--fondo);
+  --input-bg: #fff;
+  --hover-bg: #fff;
 
-  /* lines */
-  --border: #e0dac9;
-  --border-light: #ebe6d8;
-  --border-2: #c9c2ad;
-  --border2: #c9c2ad;
+  --text: var(--tinta);
+  --text-2: var(--gris);
+  --text2: var(--gris);
+  --text-3: var(--gris);
+  --text3: var(--gris);
+  --accent: var(--tinta);
+  --accent-inv: var(--fondo);
 
-  /* radii — crisper, tool-like */
-  --radius: 9px;
-  --radius-sm: 6px;
-  --radius-xs: 4px;
-  --r: 9px;
-  --rsm: 6px;
+  --border: var(--linea);
+  --border-light: var(--linea);
+  --border-2: var(--linea);
+  --border2: var(--linea);
 
-  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Space Mono', 'SF Mono', ui-monospace, monospace;
+  --radius: 0;
+  --radius-sm: 0;
+  --radius-xs: 0;
+  --r: 0;
+  --rsm: 0;
+
+  --font-display: var(--sg);
+  --font-mono: var(--mono);
 
   --sheet-peek: 56px;
 }
 
-/* paper grain */
+/* esquinas rectas en todo, sin sombras */
+*, *::before, *::after { border-radius: 0 !important; }
+
 body {
-  font-family: var(--font-display) !important;
-  background-color: var(--bg) !important;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.32'/></svg>");
-  background-blend-mode: multiply;
-  color: var(--text);
+  font-family: var(--inter) !important;
+  background: var(--fondo) !important;
+  color: var(--tinta);
+  letter-spacing: -.01em;
   -webkit-font-smoothing: antialiased;
 }
+button, input, select, textarea { font-family: inherit; color: inherit; }
+:focus-visible { outline: 1px solid var(--tinta); outline-offset: 2px; }
 
-/* ── headers ── */
-.app-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.header-title {
-  font-family: var(--font-display);
+/* ── titulares: Space Grotesk bold, en minúscula ── */
+h1, .header-title, .tool-title, .section-title, .panel-header h1, .card-title, .instr-card h3 {
+  font-family: var(--sg);
   font-weight: 700;
-  letter-spacing: -0.2px;
-  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--tinta);
+}
+h1, .header-title, .tool-title, .section-title, .panel-header h1 { text-transform: lowercase; }
+.header-title, .tool-title { font-size: 18px; }
+.panel-header h1 { font-size: 28px; }
+.panel-header p { font-size: 13px; color: var(--gris); margin-top: 6px; }
+
+/* ── cabecera ── */
+.app-header {
+  background: var(--fondo);
+  border-bottom: 1px solid var(--tinta);
 }
 .back-link {
-  font-family: var(--font-mono);
-  font-size: 11px !important;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 15px !important;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--tinta);
+  border: 0 !important;
+  background: none !important;
+  padding-left: 0 !important;
 }
-.back-link:hover { background: var(--hover-bg); color: var(--text); }
+.back-link:hover { color: var(--naranja); }
 
-h1, .section-title, .panel-header h1, .tool-title { font-family: var(--font-display); }
-
-/* ── cards ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+/* ── cajas ── */
+.card, .page-card, .instr-card {
+  background: var(--fondo);
+  border: 1px solid var(--linea);
+  box-shadow: none !important;
 }
 
-/* ── section labels ── */
-.stitle, .variations-label, .preview-lbl, .preview-hint, .count-badge, .dim-label, .diml {
-  font-family: var(--font-mono);
+/* ── rótulos y datos: Inconsolata, sin mayúsculas sostenidas ── */
+.stitle, .variations-label, .preview-lbl, .preview-hint, .count-badge, .dim-label, .diml,
+.badge, .chip, .card-tag, .card-num, .ink-label, .color-label, .panel-badge, .eyebrow,
+.setting-label, .card-label, .print-note, .status, .upload-hint, .img-name, .toggle-label,
+.footer-note, .footer-count, .tool-sub, .preset-name, .ctrl label, .ctrl-row label {
+  font-family: var(--mono);
+  letter-spacing: 0;
+  text-transform: none;
 }
 .stitle {
-  font-size: 9.5px;
-  font-weight: 700;
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--gris);
   display: flex;
   align-items: center;
   gap: 7px;
 }
-.stitle::before {
-  content: "";
-  width: 6px; height: 6px;
-  background: var(--text);
-  flex-shrink: 0;
-  display: inline-block;
-}
-
-/* ── control labels & values ── */
-.ctrl label { color: var(--text-2); }
-.ctrl label b {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--text);
+.ctrl label, .ctrl-row label, .toggle-label { font-size: 13px; color: var(--gris); }
+.ctrl label, .ctrl-row label { flex-wrap: wrap; gap: 0 6px; }
+.ctrl label b, .ctrl-row label b {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--tinta);
   font-variant-numeric: tabular-nums;
 }
+.variations-label, .preview-lbl { font-size: 14px; font-weight: 400; color: var(--gris); }
+.preview-hint, .count-badge, .dim-label, .diml, .status, .upload-hint, .img-name,
+.ink-label, .color-label, .print-note, .setting-label, .tool-sub { font-size: 13px; color: var(--gris); }
+.badge, .card-num, .panel-badge {
+  font-size: 12px;
+  color: var(--gris);
+  background: none;
+  border: 1px solid var(--linea);
+}
+.status.warn { color: var(--naranja); }
+.status.ok { color: var(--tinta); }
+.empty-msg { font-style: normal; color: var(--gris); }
 
-/* ── range sliders — custom, crisp ── */
+/* ── deslizadores: línea fina y tirador en tinta ── */
 input[type=range] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 4px;
-  background: #e3ddcd;
-  border-radius: 2px;
-  outline: none;
+  height: 1px;
+  margin: 8px 0;
+  background: var(--tinta);
+  accent-color: var(--tinta);
+  outline-offset: 8px;
   cursor: pointer;
 }
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 15px; height: 15px;
-  background: var(--text);
-  border-radius: 3px;
-  border: 2px solid var(--surface);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.22);
+  width: 9px; height: 15px;
+  background: var(--tinta);
+  border: 0;
   cursor: pointer;
 }
 input[type=range]::-moz-range-thumb {
-  width: 13px; height: 13px;
-  background: var(--text);
-  border-radius: 3px;
-  border: 2px solid var(--surface);
+  width: 9px; height: 15px;
+  background: var(--tinta);
+  border: 0;
   cursor: pointer;
 }
 
-/* ── pills ── */
-.mb {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 4px 9px;
-  border: 1px solid var(--border-2);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text-2);
-  transition: all 0.12s;
+/* ── campos ── */
+input[type=text], input[type=number], select, textarea {
+  font-family: var(--mono) !important;
+  font-size: 14px !important;
+  letter-spacing: 0;
+  background: #fff !important;
+  color: var(--tinta);
+  border: 1px solid var(--linea) !important;
 }
-.mb:hover { border-color: var(--text-3); color: var(--text); }
-.mb.on { background: var(--text); color: var(--accent-inv); border-color: var(--text); }
+input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
+  border-color: var(--tinta) !important;
+  outline: none;
+}
 
-/* ── buttons ── */
-.bp {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 11.5px !important;
-  font-weight: 700;
-  background: var(--text);
-  color: var(--accent-inv);
-  border: none;
-  border-radius: var(--radius-sm);
-  transition: transform 0.12s, opacity 0.12s;
+/* ── opciones (pastillas, tamaños, efectos, segmentos) ──
+   Sin relleno; la activa se marca con borde en tinta y línea naranja debajo. */
+.mb, .ap, .sbtn, .size-btn, .effect-btn, .seg-btn, .ink-preset, .preset-item {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  background: none;
+  color: var(--gris);
+  border: 1px solid var(--linea);
+  transition: color .12s, border-color .12s;
 }
-.bp:hover { opacity: 0.9; transform: translateY(-1px); }
-.bs {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 11px !important;
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border-2);
-  border-radius: var(--radius-sm);
-  transition: background 0.12s, border-color 0.12s;
+.mb { padding: 4px 9px; }
+.sbtn span, .size-btn span { font-size: 12px; opacity: 1; color: var(--gris); }
+.mb:hover, .ap:hover, .sbtn:hover, .size-btn:hover, .effect-btn:hover, .seg-btn:hover,
+.ink-preset:hover, .preset-item:hover {
+  color: var(--naranja);
+  background: none;
+  border-color: var(--linea);
 }
-.bs:hover { background: var(--hover-bg); border-color: var(--text-3); }
+.mb.on, .ap.on, .sbtn.on, .size-btn.on, .effect-btn.active, .seg-btn.active,
+.preset-item.active, .bs.on {
+  background: none;
+  color: var(--tinta);
+  font-weight: 400;
+  border: 1px solid var(--tinta);
+  border-bottom-color: var(--naranja);
+}
+.seg { border: 0; gap: 4px; }
+.seg-btn, .seg-btn:last-child { border-right: 1px solid var(--linea); }
+.seg-btn.active, .seg-btn.active:last-child { border-right-color: var(--tinta); }
 
-/* ── misc mono accents ── */
-.badge, .chip, .card-tag, .card-num, .ink-label, .color-label, .panel-badge { font-family: var(--font-mono); }
-.size-btn, .sbtn { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.02em; }
-.size-btn.on, .sbtn.on { background: var(--text); color: var(--accent-inv); border-color: var(--text); }
+/* ── pestañas: enlace en Inconsolata, la activa con línea naranja ── */
+.tab {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tinta);
+  border-bottom: 1px solid transparent;
+}
+.tab:hover { color: var(--naranja); }
+.tab.active { color: var(--tinta); border-bottom-color: var(--naranja); }
+
+/* ── botón principal: el único amarillo de la pantalla ── */
+.bp, .btn-print, button.primary {
+  font-family: var(--mono);
+  font-size: 15px !important;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  background: var(--amarillo);
+  color: var(--tinta);
+  border: 0;
+  padding: 8px 14px;
+  transition: background .12s, transform .12s;
+}
+.bp:hover, .btn-print:hover, button.primary:hover {
+  background: color-mix(in srgb, var(--amarillo), #fff 15%);
+  color: var(--tinta);
+  opacity: 1;
+}
+.bp:active, .btn-print:active, button.primary:active { transform: scale(.98); }
+.bp:disabled { opacity: .35; }
+
+/* ── botones secundarios: caja de línea fina ── */
+.bs, .save-btn, .rm-btn:not(.card-thumb .rm-btn) {
+  font-family: var(--mono);
+  font-size: 14px !important;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  background: none;
+  color: var(--tinta);
+  border: 1px solid var(--linea);
+  transition: color .12s, border-color .12s;
+}
+.bs:hover, .save-btn:hover, .rm-btn:not(.card-thumb .rm-btn):hover {
+  background: none;
+  color: var(--naranja);
+  border-color: var(--linea);
+  opacity: 1;
+}
+.preset-del { color: var(--gris); }
+.preset-del:hover { color: var(--naranja); background: none; }
+
+/* ── zonas de carga ── */
+.upload-area, #drop-zone, .bulk-zone {
+  background: none;
+  border: 1px dashed var(--gris);
+  color: var(--gris);
+}
+.upload-area:hover, .upload-area.over, #drop-zone:hover, #drop-zone.drag-over,
+.bulk-zone:hover, .bulk-zone.drag-over {
+  background: #fff;
+  border-color: var(--tinta);
+  color: var(--tinta);
+}
+.upload-area.has-img { border: 1px solid var(--linea); }
+.upload-icon, .bulk-zone-icon { background: none; border: 0; color: var(--tinta); }
+.upload-icon svg, #drop-zone svg, .thumb-ph svg { opacity: 1; }
+#drop-zone small { font-size: 13px; color: var(--gris); }
+.slot { background: var(--soporte); border: 1px dashed var(--linea); }
+.slot:hover { border-color: var(--tinta); }
+.thumb-item, .card-thumb, .img-thumb.contain { background: var(--soporte); }
+.card-thumb:hover { background: var(--soporte); }
+.card-thumb.drag-over { background: #fff; outline: 1px dashed var(--tinta); }
+.slot .rm, .thumb-del, .card-thumb .rm-btn { background: var(--tinta); color: var(--fondo); }
+.card-thumb .rm-btn:hover { background: var(--naranja); }
+
+/* ── interruptor ── */
+.toggle-track { background: var(--linea); }
+.toggle input:checked + .toggle-track { background: var(--tinta); }
+.toggle-thumb { background: var(--fondo); }
+
+/* ── muestras de color ── */
+.swatch, .ink-swatch { border: 1px solid var(--linea); box-shadow: none; }
+.preset { border-width: 1px; }
+.preset:hover, .preset.on { border-color: var(--tinta); }
+
+/* ── barras de progreso ── */
+.pbar, .bulk-bar-wrap { height: 1px; background: var(--linea); overflow: visible; }
+.pfill, .bulk-bar { height: 3px; margin-top: -1px; background: var(--tinta); }
+
+/* ── lienzo: imagen sin marco, sombra ni esquinas ── */
+.canvas-wrap, .app .wrap, .poster-wrap, .empty-placeholder { background: var(--soporte); box-shadow: none; }
+canvas, #preview, #cv, #output-canvas, .preview-sheet, .mini-thumb { box-shadow: none !important; }
+.preview-sheet { border: 1px solid var(--linea); }
+.sheet-panel { border-color: var(--linea); background: var(--soporte); }
+.mini-thumb { border-width: 1px; }
+.mini-thumb:hover { transform: none; border-color: var(--linea); }
+.mini-thumb.active { border-color: var(--tinta); }
+hr.div { border-top: 1px solid var(--linea); }
+#webcam-badge { background: var(--azul); color: var(--tinta); font-size: 12px; letter-spacing: 0; text-transform: none; }
+
+/* ── fanzine ── */
+.settings, .tabs { background: var(--fondo); }
+.tabs { border-bottom-color: var(--linea); }
+.v-sep { background: var(--linea); }
+.page-card:hover { border-color: var(--tinta); }
+.page-card.drop-target { box-shadow: none !important; }
+.card-label { font-size: 13px; font-weight: 400; }
+.section-title { font-size: 28px; }
+.section-sub { font-size: 16px; color: var(--tinta); margin-top: 8px; }
+.instr-card h3 { font-size: 20px; }
+.instr-list li { color: var(--tinta); font-size: 15px; }
+.instr-list li::before {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 400;
+  background: none;
+  color: var(--gris);
+  min-width: 16px;
+  height: auto;
+  margin-top: 0;
+  justify-content: flex-start;
+}
 
 /* ════════════════════════════════════════════════════════════════
-   BOTTOM SHEET  (mobile only — canvas tools)
-   The control sidebar (.ctrl-panel / .panel) becomes a draggable
-   sheet over the canvas stage.
+   HOJA INFERIOR  (solo móvil — herramientas de lienzo)
+   El panel de controles (.ctrl-panel / .panel) que lleva un
+   .sheet-handle se convierte en una hoja arrastrable sobre el lienzo.
 ════════════════════════════════════════════════════════════════ */
 .sheet-handle { display: none; }
 
-@media (min-width: 901px) {
-  /* tablet/desktop: leave the original side-by-side layout intact */
-}
-
 /* ── TABLET ── */
 @media (max-width: 1100px) and (min-width: 901px) {
-  .ctrl-panel, .panel { width: 248px !important; }
+  .ctrl-panel, .app > .panel { width: 248px !important; }
   .app-header { padding-left: 12px !important; padding-right: 12px !important; }
 }
 
-/* ── MOBILE: bottom sheet ── */
+/* ── MÓVIL ── */
 @media (max-width: 900px) {
-  body { height: 100vh; height: 100dvh; overflow: hidden; }
-  .app { flex-direction: column !important; position: relative; min-height: 0; }
+  .app-header { padding-left: 12px !important; padding-right: 12px !important; }
+  .header-right { display: none; }
 
-  /* stage fills behind the sheet */
-  .preview-panel, .preview-area, .preview-col, .canvas-area {
+  body:has(.sheet-handle) { height: 100vh; height: 100dvh; overflow: hidden; }
+  body:has(.sheet-handle) .app { flex-direction: column !important; position: relative; min-height: 0; }
+
+  /* el lienzo ocupa todo detrás de la hoja */
+  body:has(.sheet-handle) :is(.preview-panel, .preview-area, .preview-col, .canvas-area) {
     position: absolute !important;
     inset: 0 0 var(--sheet-peek) 0 !important;
     width: auto !important;
@@ -224,8 +409,8 @@ input[type=range]::-moz-range-thumb {
     overflow: auto;
   }
 
-  /* the control panel → sheet */
-  .ctrl-panel, .panel {
+  /* el panel de controles → hoja */
+  :is(.ctrl-panel, .panel):has(> .sheet-handle) {
     position: fixed !important;
     left: 0; right: 0; bottom: 0;
     width: auto !important;
@@ -233,20 +418,18 @@ input[type=range]::-moz-range-thumb {
     max-height: 82dvh;
     border-right: none !important;
     border-left: none !important;
-    border-top: 1px solid var(--border);
-    border-radius: 18px 18px 0 0;
-    box-shadow: 0 -12px 44px rgba(0,0,0,0.18);
-    background: var(--bg);
+    border-top: 1px solid var(--tinta);
+    background: var(--fondo);
     transform: translateY(calc(100% - var(--sheet-peek)));
     transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
     z-index: 80;
     padding-top: 0 !important;
     overscroll-behavior: contain;
   }
-  .ctrl-panel.dragging, .panel.dragging { transition: none; }
-  .ctrl-panel.sheet-open, .panel.sheet-open { transform: translateY(0); }
+  :is(.ctrl-panel, .panel).dragging { transition: none; }
+  :is(.ctrl-panel, .panel).sheet-open { transform: translateY(0); }
 
-  /* the grab handle */
+  /* el tirador */
   .sheet-handle {
     display: flex;
     align-items: center;
@@ -255,37 +438,21 @@ input[type=range]::-moz-range-thumb {
     top: 0;
     z-index: 5;
     height: var(--sheet-peek);
+    flex-shrink: 0;
     padding: 0 18px;
-    background: var(--bg);
-    border-radius: 18px 18px 0 0;
+    background: var(--fondo);
     cursor: grab;
     touch-action: none;
     user-select: none;
   }
   .sheet-handle:active { cursor: grabbing; }
-  .sheet-handle .sh-grip {
-    position: absolute;
-    top: 8px; left: 50%;
-    transform: translateX(-50%);
-    width: 38px; height: 4px;
-    border-radius: 3px;
-    background: var(--border-2);
-  }
+  .sheet-handle .sh-grip { display: none; }
   .sheet-handle .sh-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-2);
-    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 15px;
+    letter-spacing: 0;
+    color: var(--tinta);
   }
-  .sheet-handle .sh-chev {
-    margin-top: 6px;
-    color: var(--text-3);
-    transition: transform 0.3s;
-  }
+  .sheet-handle .sh-chev { color: var(--tinta); transition: transform 0.3s; }
   .sheet-open .sheet-handle .sh-chev { transform: rotate(180deg); }
-
-  .app-header { padding-left: 12px !important; padding-right: 12px !important; }
-  .header-right { display: none; }
 }

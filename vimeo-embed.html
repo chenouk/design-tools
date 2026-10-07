@@ -4,85 +4,85 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vimeo → embed · m-e.studio</title>
+<link rel="stylesheet" href="studio.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
-    --fg: #000;
-    --bg: #fff;
-    --muted: #6b6b6b;
-    --line: #d9d9d9;
-    --soft: #f4f4f4;
-    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --fg: var(--tinta);
+    --bg: var(--fondo);
+    --muted: var(--gris);
+    --line: var(--linea);
+    --soft: #fff;
   }
   html, body { margin: 0; background: var(--bg); color: var(--fg); }
-  body {
-    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
+  body { font-size: 16px; line-height: 1.5; }
   .wrap { max-width: 860px; margin: 0 auto; padding: 40px 20px 64px; }
 
   header { border-bottom: 1px solid var(--fg); padding-bottom: 16px; margin-bottom: 28px; }
-  h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px; }
-  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; margin-bottom: 40px; }
+  h1 { font-size: clamp(38px, 5vw, 72px); line-height: 0.98; letter-spacing: -0.035em; margin: 0 0 24px; }
+  header p { margin: 0; font-size: 18px; line-height: 1.4; max-width: 52ch; }
 
-  label.field { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  label.field { display: block; font-family: var(--mono); letter-spacing: 0; font-size: 14px; color: var(--muted); margin-bottom: 8px; }
   textarea {
     width: 100%; min-height: 200px; resize: vertical;
     font: 13px/1.5 var(--mono); color: var(--fg); background: var(--bg);
-    border: 1px solid var(--fg); border-radius: 0; padding: 12px;
+    border-radius: 0; padding: 12px;
   }
-  textarea:focus { outline: 2px solid var(--fg); outline-offset: 2px; }
 
   .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 32px; }
-  .bar .count { margin-right: auto; font-size: 13px; color: var(--muted); }
+  .bar .count { margin-right: auto; font-family: var(--mono); letter-spacing: 0; font-size: 14px; color: var(--muted); }
 
   button {
-    font: inherit; font-size: 13px; cursor: pointer;
-    background: var(--bg); color: var(--fg);
-    border: 1px solid var(--fg); border-radius: 0; padding: 8px 14px;
+    font-family: var(--mono); letter-spacing: 0; font-size: 15px; cursor: pointer;
+    background: none; color: var(--fg);
+    border: 1px solid var(--line); padding: 8px 14px;
     min-height: 38px;
   }
-  button:hover { background: var(--fg); color: var(--bg); }
-  button.primary { background: var(--fg); color: var(--bg); }
-  button.primary:hover { background: var(--bg); color: var(--fg); }
+  button:hover { color: var(--naranja); }
+  button.primary { border: 0; }
+  /* un solo amarillo por pantalla: «Copiar todos» */
+  .card button.primary, .card button.primary:hover { background: none; border: 1px solid var(--line); }
   button:disabled { opacity: 0.35; cursor: default; }
-  button:disabled:hover { background: var(--bg); color: var(--fg); }
-  button.done, button.done:hover { background: var(--fg); color: var(--bg); }
+  button:disabled:hover { color: var(--fg); }
+  button.primary:disabled:hover { background: var(--amarillo); }
+  button.done, button.done:hover { color: var(--fg); border-color: var(--fg); border-bottom-color: var(--naranja); }
 
   .results { display: grid; gap: 16px; }
-  .card { border: 1px solid var(--fg); }
+  .card { border: 0; border-top: 1px solid var(--fg); }
   .card-head {
     display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center;
-    padding: 12px 14px; border-bottom: 1px solid var(--line);
+    padding: 12px 0; border-bottom: 1px solid var(--line);
   }
-  .card-title { margin: 0; font-size: 15px; font-weight: 600; margin-right: auto; word-break: break-word; }
-  .card-title small { font-weight: 400; color: var(--muted); font-family: var(--mono); font-size: 12px; margin-left: 6px; }
+  .card-title { margin: 0; font-size: 28px; margin-right: auto; word-break: break-word; }
+  .card-title small { font-weight: 400; color: var(--muted); font-family: var(--mono); letter-spacing: 0; font-size: 14px; margin-left: 6px; }
   .card-actions { display: flex; gap: 8px; }
   pre.code {
     margin: 0; padding: 12px 14px; background: var(--soft);
-    font: 12px/1.55 var(--mono); white-space: pre-wrap; word-break: break-all;
+    font: 14px/1.4 var(--mono); letter-spacing: 0; white-space: pre-wrap; word-break: break-all;
   }
-  .status { padding: 8px 14px; font-size: 13px; border-top: 1px solid var(--line); }
+  .status { padding: 8px 0; font-size: 14px; text-align: left; border-top: 1px solid var(--line); }
   .status:empty { display: none; }
 
   details { border-top: 1px solid var(--line); }
-  summary { cursor: pointer; padding: 10px 14px; font-size: 13px; list-style: none; user-select: none; }
+  summary { cursor: pointer; padding: 10px 0; font-family: var(--mono); letter-spacing: 0; font-size: 15px; list-style: none; user-select: none; }
+  summary:hover { color: var(--naranja); }
   summary::-webkit-details-marker { display: none; }
   summary::before { content: "+ "; font-family: var(--mono); }
   details[open] summary::before { content: "− "; }
-  .preview { padding: 0 14px 14px; }
+  .preview { padding: 0 0 14px; }
 
-  .card.warn { border-style: dashed; }
+  .card.warn { border-top-style: dashed; }
   .card.warn .card-head { border-bottom: 0; }
-  .warn-line { font: 12px/1.5 var(--mono); color: var(--muted); padding: 0 14px 12px; word-break: break-all; margin: 0; }
+  .warn-line { font: 14px/1.4 var(--mono); letter-spacing: 0; color: var(--muted); padding: 0 0 12px; word-break: break-all; margin: 0; }
 
   .empty { color: var(--muted); font-size: 14px; border: 1px dashed var(--line); padding: 24px; text-align: center; }
 
-  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--fg); font-size: 13px; color: var(--muted); }
-  footer h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg); margin: 0 0 8px; font-weight: 600; }
+  footer { margin-top: 112px; padding-top: 24px; border-top: 1px solid var(--fg); }
+  footer h2 { font-family: var(--sg); font-weight: 700; font-size: 28px; line-height: 1.05; letter-spacing: -0.03em; text-transform: lowercase; margin: 0 0 16px; }
   footer ol { margin: 0 0 8px; padding-left: 20px; }
   footer p { margin: 0; }
-  code, kbd { font-family: var(--mono); font-size: 12px; background: var(--soft); padding: 1px 4px; }
+  code, kbd { font-family: var(--mono); letter-spacing: 0; font-size: 1em; }
 
   @media (max-width: 520px) {
     .wrap { padding: 24px 16px 48px; }
@@ -97,6 +97,10 @@
 <div class="wrap">
 
   <header>
+    <a href="index.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Herramientas
+    </a>
     <h1>Vimeo → embed</h1>
     <p>Pega enlaces o códigos de Vimeo y obtén el HTML para m-e.studio: reproducción automática, en bucle, sin sonido y sin controles.</p>
   </header>

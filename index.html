@@ -234,23 +234,44 @@ footer {
 </style>
 <link rel="stylesheet" href="studio.css">
 <style>
-  .card { background: var(--surface); }
-  .card-title { font-family: var(--font-display); }
-  .eyebrow { font-family: var(--font-mono); }
-  .card:hover { box-shadow: 0 14px 44px rgba(28,26,20,0.12); border-color: var(--border-2); }
-  .arrow { background: var(--text); }
+  header, .grid, footer { max-width: 1440px; }
+  header { padding-top: 32px; }
+  .logo { display: block; width: 100px; margin-bottom: 56px; }
+  .eyebrow { font-size: 14px; font-weight: 400; color: var(--gris); margin-bottom: 12px; }
+  h1 { font-size: clamp(38px, 5vw, 72px); line-height: 0.98; letter-spacing: -0.035em; }
+  .subtitle { font-size: 18px; line-height: 1.4; color: var(--tinta); margin-top: 24px; max-width: 52ch; }
+  .grid { border-top: 1px solid var(--tinta); margin-top: 56px; padding-top: 24px; gap: 32px 16px; }
+  header + .grid { width: calc(100% - 96px); padding-left: 0; padding-right: 0; }
+
+  /* tarjeta: imagen arriba, título debajo, sin caja ni sombra */
+  .card, .card:hover { background: none; border: 0; transform: none; }
+  .card-preview img, .card-preview svg { transition: filter .2s; }
+  .card:hover .card-preview { filter: grayscale(1); }
+  .card-body { border-top: 0; padding: 16px 0 0; gap: 8px; }
+  .card-tag { display: none; }
+  .card-title { font-size: 28px; }
+  .card-desc { font-size: 16px; line-height: 1.5; color: var(--tinta); margin-top: 0; }
+  .card-footer { align-items: flex-end; }
+  .chip { font-size: 13px; padding: 0; border: 0; background: none; color: var(--gris); }
+  .chip + .chip::before { content: "· "; }
+  .arrow, .card:hover .arrow { width: 16px; height: 16px; background: none; transform: none; }
+  .arrow svg { width: 16px; height: 16px; fill: none; stroke: var(--tinta); stroke-width: 6; }
+  .card:hover .arrow svg { stroke: var(--naranja); }
+  footer { border-top-color: var(--linea); }
+  .footer-note, .footer-count { font-size: 14px; color: var(--gris); }
 
   @media (max-width: 1100px) {
-    header, .grid, footer { padding-left: 32px; padding-right: 32px; }
+    header, footer { padding-left: 32px; padding-right: 32px; }
+    header + .grid { width: calc(100% - 64px); }
     .grid { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 760px) {
-    header { padding: 34px 20px 0; }
-    h1 { font-size: 28px; }
-    .subtitle { font-size: 14px; }
-    .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 26px 20px 44px; }
+    header { padding: 24px 16px 0; }
+    .logo { margin-bottom: 40px; }
+    header + .grid { width: calc(100% - 32px); }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 32px 16px; padding-bottom: 56px; }
     .card-preview { height: 156px; }
-    footer { flex-direction: column; gap: 6px; align-items: flex-start; padding: 16px 20px; }
+    footer { flex-direction: column; gap: 6px; align-items: flex-start; padding: 16px; }
   }
   @media (max-width: 460px) {
     .grid { grid-template-columns: 1fr; }
@@ -261,7 +282,8 @@ footer {
 <body>
 
 <header>
-  <div class="eyebrow">Localhost · Herramientas</div>
+  <img class="logo" src="img/logotype.svg" alt="m—e studio">
+  <div class="eyebrow">Herramientas</div>
   <h1>Diseño generativo</h1>
   <p class="subtitle">Herramientas para crear y explorar arte generativo en el navegador.</p>
 </header>
@@ -338,9 +360,7 @@ footer {
           <span class="chip">Geometría</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -393,9 +413,7 @@ footer {
           <span class="chip">Formas</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -477,9 +495,7 @@ footer {
           <span class="chip">Analógico</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -528,9 +544,7 @@ footer {
           <span class="chip">Plegado</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -598,9 +612,7 @@ footer {
           <span class="chip">Composición</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -661,9 +673,7 @@ footer {
           <span class="chip">Webcam</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -709,9 +719,7 @@ footer {
           <span class="chip">Texto</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -751,9 +759,7 @@ footer {
           <span class="chip">HTML</span>
         </div>
         <div class="arrow">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M3 3H97V97M97 3 3 97"/></svg>
         </div>
       </div>
     </div>
@@ -762,7 +768,7 @@ footer {
 </main>
 
 <footer>
-  <span class="footer-note">localhost · herramientas de diseño</span>
+  <span class="footer-note">m—e studio · herramientas de diseño</span>
   <span class="footer-count">8 herramientas</span>
 </footer>
 

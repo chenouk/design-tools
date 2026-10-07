@@ -355,7 +355,7 @@ input[type=text]:focus, select:focus, textarea:focus { border-color: var(--borde
         </select>
       </div>
       <div style="display:flex;gap:5px">
-        <button class="bp" id="btnTxtMode" style="flex:1">✎ Modo texto</button>
+        <button class="bs" id="btnTxtMode" style="flex:1">✎ Modo texto</button>
         <button class="bs" id="btnClearTxt" style="flex:none;width:auto;padding:7px 10px" title="Eliminar todo el texto">✕</button>
       </div>
       <p style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4">
@@ -546,13 +546,8 @@ document.getElementById('btnTxtMode').addEventListener('click', () => {
   textMode = !textMode;
   const btn = document.getElementById('btnTxtMode');
   cv.classList.toggle('text-mode', textMode);
-  if (textMode) {
-    btn.textContent = '✎ Clic en lienzo para colocar';
-    btn.style.background = '#4a9fd4';
-  } else {
-    btn.textContent = '✎ Modo texto';
-    btn.style.background = '';
-  }
+  btn.classList.toggle('on', textMode);
+  btn.textContent = textMode ? '✎ Clic en lienzo para colocar' : '✎ Modo texto';
 });
 
 document.getElementById('btnClearTxt').onclick = () => { texts = []; render(); };
